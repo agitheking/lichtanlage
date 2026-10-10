@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { emit, on, store } from '../store.js';
 import { dialog, h } from '../util/dom.js';
 import { createSceneList } from './scene-list.js';
+import { sceneTransferButtons } from './transfer.js';
 
 export function mountScenesTab(root) {
   const list = createSceneList({
@@ -19,6 +20,12 @@ export function mountScenesTab(root) {
       title: 'Eigenständige Kopie dieser Szene in einer Produktion anlegen',
       onclick: () => copyToProduction(sc),
     }, 'In Produktion kopieren')],
+    headerExtras: [sceneTransferButtons({
+      base: () => '/api/scenes',
+      filename: () => 'bibliothek.szenen.json',
+      label: () => 'die Bibliothek',
+      scenes: () => store.scenes,
+    })],
     getActive: () => store.lastScene,
     setActive: (id) => { store.lastScene = id; },
     emptyText: 'Noch keine Szenen. Stelle im Tab „Bühne“ ein Licht ein und speichere es hier.',

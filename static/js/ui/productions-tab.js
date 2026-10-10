@@ -4,6 +4,7 @@ import { activeProduction, emit, on, store } from '../store.js';
 import { clear, dialog, h } from '../util/dom.js';
 import { mountCuesTab } from './cues-tab.js';
 import { createSceneList } from './scene-list.js';
+import { exportProduction, importProduction, sceneTransferButtons } from './transfer.js';
 
 const SUBTABS = [['szenen', 'Szenen'], ['ablauf', 'Ablauf']];
 
@@ -18,12 +19,18 @@ export function mountProductionsTab(root) {
   });
   const btnRename = h('button', { class: 'btn small', onclick: rename }, 'Umbenennen');
   const btnDelete = h('button', { class: 'btn small danger', onclick: remove }, 'Löschen');
+  const btnExport = h('button', {
+    class: 'btn small',
+    title: 'Ganze Produktion (Szenen und Ablauf) als Datei speichern',
+    onclick: () => activeProduction() && exportProduction(activeProduction()),
+  }, 'Exportieren');
+  const btnImport = h('button', { class: 'btn small', title: 'Produktion aus einer Datei laden', onclick: importProduction }, 'Importieren');
   const subnav = h('nav', { class: 'subtabs' },
     SUBTABS.map(([k, l]) => h('a', { href: `#produktionen/${k}`, 'data-sub': k }, l)));
   const header = h('div', { class: 'prod-header' },
     h('label', { class: 'row' }, h('span', { class: 'muted small' }, 'Produktion'), select),
     h('button', { class: 'btn small', onclick: create }, '+ Neu'),
-    btnRename, btnDelete,
+    btnRename, btnDelete, btnExport, btnImport,
     h('div', { class: 'spacer' }),
     subnav);
 
@@ -40,7 +47,16 @@ export function mountProductionsTab(root) {
     },
     getActive: () => (lastRecalled.pid === pid() ? lastRecalled.id : null),
     setActive: (id) => { lastRecalled = { pid: pid(), id }; },
-    headerExtras: [h('button', { class: 'btn small', onclick: copyFromLibrary }, 'Aus Bibliothek kopieren')],
+    headerExtras: [
+      h('button', { class: 'btn small', onclick: copyFromLibrary }, 'Aus Bibliothek kopieren'),
+      sceneTransferButtons({
+        base: () => `${base()}/scenes`,
+        filename: () => `${pid()}.szenen.json`,
+        label: () => `„${activeProduction()?.name}“`,
+        scenes: () => activeProduction()?.scenes ?? [],
+        replaceHint: 'Ablauf-Einträge, deren Szene dabei wegfällt, bleiben als Notiz erhalten.',
+      }),
+    ],
     emptyText: 'Noch keine Szenen in dieser Produktion. Speichere oben das aktuelle Licht oder kopiere Szenen aus der Bibliothek.',
   });
   const empty = h('div', { class: 'card stack' },
@@ -58,7 +74,7 @@ export function mountProductionsTab(root) {
   function render() {
     const has = store.productions.length > 0;
     clear(select, store.productions.map((p) => h('option', { value: p.id, selected: p.id === pid() }, p.name)));
-    select.disabled = btnRename.disabled = btnDelete.disabled = !has;
+    select.disabled = btnRename.disabled = btnDelete.disabled = btnExport.disabled = !has;
     empty.hidden = has;
     for (const [k, el] of Object.entries(panes)) el.hidden = !has || k !== sub;
     for (const a of subnav.children) a.classList.toggle('active', a.dataset.sub === sub);

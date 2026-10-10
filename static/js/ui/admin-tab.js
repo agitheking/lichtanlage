@@ -3,6 +3,7 @@ import { api } from '../api.js';
 import { emit, on, socket, store } from '../store.js';
 import { clear, download, h } from '../util/dom.js';
 import { ROLE_LABELS } from './channel-explorer.js';
+import { isBackup, readJsonFile } from './transfer.js';
 import { createWizard } from './wizard.js';
 
 const PAGES = [
@@ -254,20 +255,38 @@ export function mountAdminTab(root, view) {
     clear(pages.backup,
       h('h2', {}, 'Sicherung'),
       h('div', { class: 'card stack' },
-        h('p', {}, 'Speichert Scheinwerfer, Gerätetypen, Bühne und Szenen in eine Datei.'),
+        h('p', {}, 'Speichert Scheinwerfer, Gerätetypen, Bühne, die Szenen-Bibliothek und alle Produktionen '
+          + '(mit ihren Szenen und dem Ablauf) in eine Datei.'),
+        h('p', { class: 'muted small' }, 'Einzelne Produktionen oder Szenen lassen sich auch direkt in den Tabs '
+          + '„Produktionen“ und „Szenen“ exportieren und importieren.'),
         h('div', {}, h('button', { class: 'btn primary', onclick: async () => download(`lichtpult-sicherung-${new Date().toISOString().slice(0, 10)}.json`, await api.get('/api/export')) }, 'Sicherung herunterladen'))),
       h('div', { class: 'card stack', style: { marginTop: '12px' } },
-        h('p', {}, 'Sicherung wiederherstellen (überschreibt den aktuellen Stand):'),
+        h('p', {}, 'Sicherung wiederherstellen (überschreibt den aktuellen Stand einschließlich der Produktionen):'),
         h('div', { class: 'row' }, file, h('button', {
           class: 'btn danger',
           onclick: async () => {
             const f = file.files[0];
             if (!f) return emit('toast', { text: 'Bitte zuerst eine Datei wählen.' });
-            const data = JSON.parse(await f.text());
+            const read = await readJsonFile(f);
+            if (!read) return;
+            const { data } = read;
+            if (!isBackup(data)) {
+              const hint = data?.format === 'lichtpult-production' ? ' Eine Produktion bitte im Tab „Produktionen“ importieren.'
+                : data?.format === 'lichtpult-scenes' ? ' Szenen bitte im Tab „Szenen“ oder bei einer Produktion importieren.' : '';
+              return emit('toast', { text: `„${f.name}“ ist keine Lichtpult-Sicherung.${hint}`, error: true });
+            }
             delete data['state.json'];
-            if (!confirm('Aktuellen Stand wirklich ersetzen?')) return;
-            await api.post('/api/import', data);
-            emit('toast', { text: 'Sicherung wiederhergestellt.' });
+            const withProductions = 'productions.json' in data;
+            const msg = withProductions
+              ? 'Aktuellen Stand wirklich ersetzen? Auch alle Produktionen werden durch die aus der Sicherung ersetzt.'
+              : 'Aktuellen Stand wirklich ersetzen? Diese ältere Sicherung enthält keine Produktionen – die vorhandenen Produktionen bleiben unverändert.';
+            if (!confirm(msg)) return;
+            try {
+              await api.post('/api/import', data);
+            } catch (e) {
+              return emit('toast', { text: `Wiederherstellen fehlgeschlagen: ${e.message.replace(/^Import fehlgeschlagen:\s*/, '')}`, error: true });
+            }
+            emit('toast', { text: withProductions ? 'Sicherung wiederhergestellt (inkl. Produktionen).' : 'Sicherung wiederhergestellt.' });
           },
         }, 'Wiederherstellen'))));
   }
