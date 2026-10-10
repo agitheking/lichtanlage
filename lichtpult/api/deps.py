@@ -4,6 +4,7 @@ from fastapi import Request
 
 from ..core.broadcaster import Broadcaster
 from ..core.engine import Engine
+from ..core.productions import Productions
 from ..dmx.output import DmxOutput
 
 
@@ -12,6 +13,7 @@ class Services:
     engine: Engine
     output: DmxOutput
     bus: Broadcaster
+    productions: Productions
 
     def status(self) -> dict:
         from .. import __version__
@@ -30,6 +32,8 @@ class Services:
                 msg = {"type": "stage", "stage": e.stage.model_dump()}
             elif kind == "scenes":
                 msg = {"type": "scenes", "scenes": e.scenes_payload()}
+            elif kind == "productions":
+                msg = {"type": "productions", **self.productions.payload()}
             elif kind == "raw":
                 msg = {"type": "raw", **e.raw_payload()}
             elif kind == "status":
@@ -53,6 +57,7 @@ class Services:
             "state": e.state_payload(),
             "scenes": e.scenes_payload(),
             "raw": e.raw_payload(),
+            **self.productions.payload(),
         }
 
 

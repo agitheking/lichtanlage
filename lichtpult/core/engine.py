@@ -39,6 +39,20 @@ def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-") or "x"
 
 
+def unique_slug(name: str, used) -> str:
+    """Slug aus dem Namen, bei Kollision mit -2, -3 … ergänzt."""
+    used = set(used)
+    base = slugify(name)
+    sid, n = base, 2
+    while sid in used:
+        sid, n = f"{base}-{n}", n + 1
+    return sid
+
+
+def now_iso() -> str:
+    return datetime.now().isoformat(timespec="seconds")
+
+
 class Engine:
     def __init__(self, store: Store) -> None:
         self.store = store
@@ -292,31 +306,33 @@ class Engine:
 
     def capture_scene(self, name: str, fade_s: float, scene_id: str | None = None) -> Scene:
         with self.lock:
-            levels = {fid: lv.model_copy() for fid, lv in self.state.fixtures.items() if self.rig.get(fid)}
-            if scene_id:
-                sc = self._scene(scene_id)
-                sc.levels, sc.fadeSeconds, sc.name = levels, fade_s, name or sc.name
-            else:
-                base = slugify(name)
-                sid, n = base, 2
-                while any(s.id == sid for s in self.scenes):
-                    sid, n = f"{base}-{n}", n + 1
-                sc = Scene(id=sid, name=name, fadeSeconds=fade_s, levels=levels,
-                           createdAt=datetime.now().isoformat(timespec="seconds"))
-                self.scenes.append(sc)
+            sc = self.capture_into(self.scenes, name, fade_s, self._scene(scene_id) if scene_id else None)
             self._save_scenes()
+            return sc
+
+    def current_levels(self) -> dict[str, FixtureLevels]:
+        """Kopie der aktuellen Werte aller Scheinwerfer im Rig."""
+        with self.lock:
+            return {fid: lv.model_copy() for fid, lv in self.state.fixtures.items() if self.rig.get(fid)}
+
+    def capture_into(self, scenes: list[Scene], name: str, fade_s: float, target: Scene | None = None) -> Scene:
+        """Aktuelles Licht in `target` übernehmen oder als neue Szene an `scenes` anhängen (ohne Speichern)."""
+        with self.lock:
+            levels = self.current_levels()
+            if target is not None:
+                target.levels, target.fadeSeconds, target.name = levels, fade_s, name or target.name
+                return target
+            sc = Scene(id=unique_slug(name, (s.id for s in scenes)), name=name, fadeSeconds=fade_s,
+                       levels=levels, createdAt=now_iso())
+            scenes.append(sc)
             return sc
 
     def create_scene(self, name: str, fade_s: float, levels: dict[str, FixtureLevels]) -> Scene:
         """Szene direkt aus Werten anlegen (ohne das Licht im Saal umzuschalten)."""
         with self.lock:
-            base = slugify(name)
-            sid, n = base, 2
-            while any(s.id == sid for s in self.scenes):
-                sid, n = f"{base}-{n}", n + 1
-            sc = Scene(id=sid, name=name, fadeSeconds=fade_s,
+            sc = Scene(id=unique_slug(name, (s.id for s in self.scenes)), name=name, fadeSeconds=fade_s,
                        levels={fid: lv for fid, lv in levels.items() if self.rig.get(fid)},
-                       createdAt=datetime.now().isoformat(timespec="seconds"))
+                       createdAt=now_iso())
             self.scenes.append(sc)
             self._save_scenes()
             return sc
@@ -351,7 +367,11 @@ class Engine:
 
     def recall_scene(self, scene_id: str, fade_s: float | None = None, others_off: bool = True) -> dict[str, dict]:
         with self.lock:
-            sc = self._scene(scene_id)
+            return self.apply_scene(self._scene(scene_id), fade_s, others_off)
+
+    def apply_scene(self, sc: Scene, fade_s: float | None = None, others_off: bool = True) -> dict[str, dict]:
+        """Gemeinsamer Abruf für Bibliotheks- und Produktionsszenen."""
+        with self.lock:
             levels = {fid: lv.model_dump() for fid, lv in sc.levels.items()}
             if others_off:
                 for f in self.rig.fixtures:
