@@ -389,16 +389,16 @@
         ]
       },
       "target": [
-        -0.6,
+        -0.8,
         0.4,
-        -2.6
+        -1.6
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 40,
       "shape": "round",
       "groups": [
         "buehne"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: vorne links-mittig vor Sessel/Kommode"
     },
     {
       "id": "f18",
@@ -416,16 +416,16 @@
         ]
       },
       "target": [
-        0.2,
+        -0.5,
         0.4,
-        -3.0
+        -1.9
       ],
-      "beamAngleDeg": 30.0,
+      "beamAngleDeg": 35,
       "shape": "round",
       "groups": [
         "buehne"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: linke Hälfte vor dem Sofa"
     },
     {
       "id": "f19",
@@ -443,16 +443,16 @@
         ]
       },
       "target": [
-        -1.5,
+        1.3,
         0.4,
-        -3.4
+        -2.0
       ],
-      "beamAngleDeg": 40.0,
+      "beamAngleDeg": 30,
       "shape": "square",
       "groups": [
         "buehne"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: rechts zwischen Sofa und Würfeln"
     },
     {
       "id": "f20",
@@ -470,16 +470,16 @@
         ]
       },
       "target": [
-        -0.3,
-        1.0,
-        -1.6
+        0.4,
+        0.8,
+        -1.8
       ],
-      "beamAngleDeg": 18.0,
+      "beamAngleDeg": 32,
       "shape": "profile",
       "groups": [
         "technik"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: frontal, ganze Bühne"
     },
     {
       "id": "f21",
@@ -497,16 +497,16 @@
         ]
       },
       "target": [
+        -1.2,
         0.6,
-        1.0,
-        -1.8
+        -1.2
       ],
-      "beamAngleDeg": 18.0,
+      "beamAngleDeg": 25,
       "shape": "profile",
       "groups": [
         "technik"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: vorne links, Sessel"
     },
     {
       "id": "f22",
@@ -524,16 +524,16 @@
         ]
       },
       "target": [
-        -0.2,
+        -0.9,
         0.4,
-        -2.2
+        -1.5
       ],
-      "beamAngleDeg": 35.0,
+      "beamAngleDeg": 40,
       "shape": "round",
       "groups": [
         "buehne"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: vorne links"
     },
     {
       "id": "f23",
@@ -551,16 +551,16 @@
         ]
       },
       "target": [
-        0.0,
+        -0.4,
         0.4,
-        -1.0
+        -0.7
       ],
-      "beamAngleDeg": 45.0,
+      "beamAngleDeg": 45,
       "shape": "square",
       "groups": [
         "technik"
       ],
-      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt – kleineres Gerät an der Kabine, Typ unklar"
+      "notes": "Adresse per Kamera gemessen, Ziel aus Kamerabild geschätzt: schwach, vordere Bühnenkante"
     }
   ],
   "groups": [
