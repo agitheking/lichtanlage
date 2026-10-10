@@ -9,12 +9,13 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from .api import productions, routes, ws
+from .api import productions, routes, show, transfer, ws
 from .api.deps import Services
 from .config import DEFAULT_DATA_DIR, STATE_AUTOSAVE_S, STATIC_DIR
 from .core.broadcaster import Broadcaster
 from .core.engine import Engine
 from .core.productions import Productions
+from .core.show import Show
 from .core.store import Store
 from .dmx.output import DmxOutput
 
@@ -41,7 +42,8 @@ def create_app(
                 bus.broadcast_threadsafe({"type": "status", **services_ref["s"].status()})
 
         output = DmxOutput(engine.compute_frame, sim=sim, port=serial_port, on_status=on_status)
-        s = Services(engine=engine, output=output, bus=bus, productions=Productions(store, engine))
+        prods = Productions(store, engine)
+        s = Services(engine=engine, output=output, bus=bus, productions=prods, show=Show(prods))
         services_ref["s"] = s
         app.state.services = s
         output.start()
@@ -59,7 +61,9 @@ def create_app(
 
     app = FastAPI(title="Lichtpult", lifespan=lifespan)
     app.include_router(routes.router)
+    app.include_router(transfer.router)
     app.include_router(productions.router)
+    app.include_router(show.router)
     app.include_router(ws.router)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 

@@ -5,7 +5,9 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from ..core import transfer
 from ..core.engine import Conflict, NotFound
+from ..core.productions import Invalid
 from ..models.fixture_type import FixtureType
 from ..models.rig import Fixture, Rig
 from ..models.stage import StageGeometry
@@ -305,13 +307,13 @@ async def recall_scene(scene_id: str, s: S, body: RecallBody | None = None):
 
 @router.get("/export")
 def export(s: S):
-    data = s.engine.export_payload()
+    data = s.engine.export_payload() | {"productions.json": s.productions.payload()}
     return JSONResponse(data, headers={"Content-Disposition": 'attachment; filename="lichtpult-backup.json"'})
 
 
 @router.post("/import")
 async def import_backup(s: S, data: Annotated[dict, Body()]):
-    allowed = {"rig.json", "stage.json", "fixture_types.user.json", "scenes.json"}
+    allowed = {"rig.json", "stage.json", "fixture_types.user.json", "scenes.json", "productions.json"}
     unknown = set(data) - allowed - {"state.json"}
     if unknown:
         raise HTTPException(400, "Unbekannte Dateien: " + ", ".join(sorted(unknown)))
@@ -319,6 +321,12 @@ async def import_backup(s: S, data: Annotated[dict, Body()]):
     from ..models.fixture_type import FixtureTypeList
     from ..models.state import SceneList
 
+    productions = None
+    if "productions.json" in data:  # vorab prüfen, damit ein Fehler nichts halb übernimmt
+        try:
+            productions = transfer.parse_production_list(data["productions.json"])
+        except Invalid as ex:
+            raise HTTPException(400, f"Import fehlgeschlagen: {ex}") from ex
     try:
         if "fixture_types.user.json" in data:
             e.user_types = FixtureTypeList.model_validate(data["fixture_types.user.json"]).types
@@ -330,9 +338,13 @@ async def import_backup(s: S, data: Annotated[dict, Body()]):
         if "scenes.json" in data:
             e.scenes = SceneList.model_validate(data["scenes.json"]).scenes
             e.store.save("scenes.json", SceneList(scenes=e.scenes))
+        if productions is not None:
+            transfer.restore_productions(s.productions, productions)
     except Exception as ex:  # noqa: BLE001
         raise HTTPException(400, f"Import fehlgeschlagen: {ex}") from ex
-    await s.push("types", "stage", "rig", "scenes")
+    await s.push("types", "stage", "rig", "scenes", "productions")
+    if s.show.sync():
+        await s.push("show")
     return {"ok": True, "imported": sorted(set(data) & allowed)}
 
 

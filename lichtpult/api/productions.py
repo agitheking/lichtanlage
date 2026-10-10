@@ -52,6 +52,8 @@ async def rename_production(pid: str, body: NameBody, s: S):
 async def delete_production(pid: str, s: S):
     _guard(s.productions.delete, pid)
     await s.push("productions")
+    if s.show.sync():  # lief die Show in dieser Produktion, ist sie jetzt beendet
+        await s.push("show")
     return {"ok": True}
 
 
@@ -158,4 +160,6 @@ async def update_cue(pid: str, cid: str, body: CueUpdate, s: S):
 async def delete_cue(pid: str, cid: str, s: S):
     _guard(s.productions.delete_cue, pid, cid)
     await s.push("productions")
+    if s.show.sync():
+        await s.push("show")
     return {"ok": True}
