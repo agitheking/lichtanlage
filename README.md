@@ -7,6 +7,19 @@ Einrichtung**, die DMX-Adressen auch ohne Display per Ja/Nein-Fragen findet.
 - **Backend:** Python (FastAPI, pyserial), DMX-Ausgabe mit 40 Hz über **ENTTEC DMX USB Pro**
 - **Frontend:** HTML + ES-Module + three.js (lokal unter `static/vendor/`, läuft offline), kein Build-Schritt
 
+## Installation (Fedora, Debian/Ubuntu, Arch)
+
+```bash
+git clone <repo-url> lichtanlage && cd lichtanlage
+./scripts/install.sh --extras --autostart     # optional: --netz für Tablet-Zugriff
+```
+
+Das Skript installiert uv und die Python-Pakete, nimmt den Benutzer in die Gruppe für serielle
+Geräte auf (`dialout` bzw. `uucp` – danach einmal ab- und anmelden), hält ModemManager vom
+ENTTEC-Interface fern und richtet auf Wunsch einen systemd-Benutzerdienst ein.
+Eigene Szenen/Änderungen liegen in `data/` (nicht im Git) – vom alten Rechner unter
+**Einrichtung → Sicherung** exportieren und auf dem neuen wiederherstellen.
+
 ## Starten
 
 ```bash
@@ -29,6 +42,12 @@ uv run python scripts/dmx_smoke.py --chase --start 1 --end 64
 ```
 
 Unter Linux muss der Benutzer Zugriff auf `/dev/ttyUSB*` haben (Gruppe `uucp` bzw. `dialout`).
+
+## Effekte und Zugfenster
+
+Laufende Effekte (Gewitter, Lauflicht, Nachtzug, Sommer mit Vogelgezwitscher) liegen als Skripte in
+[`effekte/`](effekte/README.md), z. B. `uv run python effekte/gewitter.py` (Strg+C beendet).
+Das virtuelle Zugfenster für einen zweiten Monitor: `http://localhost:8000/static/fenster.html?licht=1`.
 
 ## Bedienung
 
@@ -58,6 +77,9 @@ ausprobieren und als eigener Gerätetyp speichern.
 | `static/js/scene/` | three.js: Kulisse, Scheinwerfer mit Spotlights und Lichtkegeln, Picking |
 | `static/js/ui/` | Tabs, Wizard, Kanal-Erkunder |
 | `data/` | Laufzeitdaten (nicht im Git): `rig.json`, `stage.json`, `scenes.json`, … |
+| `effekte/` | Effekt-Skripte (Gewitter, Lauflicht, Eisenbahn, Sommer) |
+| `static/fenster.html` | virtuelles Zugfenster, steuert die Fenster-LEDs mit |
+| `scripts/install.sh` | Installation inkl. Autostart |
 | `docs/PLAN.md` | Architektur- und Umsetzungsplan |
 
 ## Entwicklung
