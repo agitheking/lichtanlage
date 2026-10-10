@@ -142,3 +142,22 @@ POST   /api/scenes/import {…, mode: "merge"|"replace"}            (Bibliothek)
 
 Branches: `feature/produktionen-t1` … `t5`. Jede Task: Tests grün (`uv run pytest`), Branch pushen,
 nicht nach `main` mergen – das übernimmt die Haupt-Session.
+
+## Umgesetzt
+
+- **T1** Modell, Persistenz, CRUD, copy-from-library, WS `productions` (`lichtpult/core/productions.py`, `api/productions.py`).
+- **T2** Show-Steuerung und Export/Import inkl. Gesamtsicherung (`core/show.py`, `core/transfer.py`, `api/show.py`, `api/transfer.py`).
+- **T3** `scene-list.js`, Tab „Produktionen“ mit Untertab Szenen, Kopier-Buttons.
+- **T5** Export/Import-Oberfläche (`static/js/ui/transfer.js`, Stile in `static/css/productions.css`):
+  - Kopfzeile „Exportieren“/„Importieren“; Dateiname `<id>.produktion.json`. Bei gleicher ID Dialog
+    „Ersetzen“ (`mode: "replace"`) / „Als Kopie anlegen“ (`mode: "new"`, Name erhält „(Kopie)“). Die importierte
+    Produktion wird aktiviert.
+  - Szenen-Leiste neben „Szenen“ in Produktion und Bibliothek über `headerExtras` der Szenenliste
+    (`scene-list.js` unverändert); Dateinamen `<id>.szenen.json` bzw. `bibliothek.szenen.json`; Import mit
+    „Zusammenführen“/„Ersetzen“ (`?mode=`), akzeptiert Header-Format, rohe Liste, altes `{"scenes":[…]}` und
+    Produktionsdateien.
+  - Die Dateinamen setzt der Browser; der `Content-Disposition`-Name der Export-Routen wird nicht genutzt.
+  - Einrichtung → Sicherung: Hinweis auf Produktionen; Rückfrage unterscheidet Sicherungen mit/ohne `productions.json`.
+  - Ungültige Dateien (kein JSON, falsches Format, Gesamtsicherung statt Produktion o. Ä., 422 vom Server) → Fehler-Toast
+    mit Dateiname und Grund.
+  - README: Abschnitt „Produktionen“.

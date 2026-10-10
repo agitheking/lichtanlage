@@ -1,0 +1,8 @@
+/* Produktionen: Export/Import (eigene Datei, damit app.css bei paralleler Arbeit unberührt bleibt) */
+.transfer-bar { display: inline-flex; gap: 6px; padding-left: 8px; margin-left: 2px; border-left: 1px solid var(--line); }
+dialog.dialog label.transfer-mode {
+  display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px;
+  border: 1px solid var(--line); border-radius: 8px; cursor: pointer;
+}
+dialog.dialog label.transfer-mode:has(input:checked) { border-color: var(--accent); background: var(--panel-2); }
+dialog.dialog label.transfer-mode input { margin-top: 3px; }
