@@ -160,10 +160,32 @@ export function buildScenery(stage) {
   backWall.position.z = zBack - 0.05;
   root.add(backWall);
 
-  // Portal: schwarze Blende über der Bühnenöffnung und seitliche Blenden
-  root.add(box(halfW * 2 + 0.2, 0.7, 0.12, black, 0, 1.95, -0.75));
-  root.add(box(0.5, 2.6 - H, 0.12, black, -halfW + 0.15, H, -1.0));
-  root.add(box(0.5, 2.6 - H, 0.12, black, halfW - 0.4, H, -1.1));
+  // Portal: dunkelgrün-graue Blende über der Bühnenöffnung und seitliche Blenden
+  const valance = std('#2c3631', { roughness: 0.9 });
+  root.add(box(halfW * 2 + 0.2, 0.7, 0.12, valance, 0, 1.95, -0.75));
+  root.add(box(0.5, 2.6 - H, 0.12, valance, -halfW + 0.15, H, -1.0));
+  root.add(box(0.5, 2.6 - H, 0.12, valance, halfW - 0.4, H, -1.1));
+
+  // Garderobe in Astform (weiß) an der linken Blende
+  const white = std('#f2f0ea', { roughness: 0.5 });
+  const branch = new THREE.Group();
+  branch.add(box(0.035, 0.75, 0.03, white, 0, 0, 0));
+  for (const [y, side] of [[0.15, 1], [0.3, -1], [0.45, 1], [0.6, -1]]) {
+    const twig = box(0.16, 0.03, 0.03, white, 0, 0, 0);
+    twig.position.set(side * 0.06, y + 0.04, 0);
+    twig.rotation.z = side * 0.6;
+    branch.add(twig);
+  }
+  branch.position.set(-halfW + 0.15, H + 1.15, -0.92);
+  root.add(branch);
+
+  // schwarze Deckenbalken über der Spielfläche (gehören zum „Dach“)
+  for (const z of [-1.5, -2.4, -3.3]) ceiling.add(box(halfW * 2 - 0.4, 0.12, 0.14, black, 0, 2.62, z));
+
+  // Stahlrahmen über der linken Spielfläche (dort hängen die Scheinwerfer „in der Bühne“)
+  const steel = std('#2a2b2e', { metalness: 0.6, roughness: 0.5 });
+  for (const z of [-1.3, -2.2]) root.add(box(1.6, 0.06, 0.06, steel, -1.55, 2.5, z));
+  for (const x of [-2.3, -0.8]) root.add(box(0.06, 0.06, 1.0, steel, x, 2.5, -1.75));
 
   // Stellwände (Flats) an der Rückwand
   const yb = H;
@@ -264,6 +286,39 @@ export function buildScenery(stage) {
   }
   ceiling.add(box(1.3, 0.04, 0.05, std('#c9c4b3'), 0.9, 2.98, 0.5));
 
+  // Wandleuchten (orangefarbene Röhren) an den Gewölbewänden des Saals
+  const sconceMat = std('#c8743a', { emissive: '#ffb062', emissiveIntensity: 0.35, roughness: 0.6 });
+  for (const side of [-1, 1]) {
+    for (const z of [0.9, 2.7, 4.5]) {
+      const sc = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.045, 0.32, 14, 1, true), sconceMat);
+      sc.position.set(side * (v.halfWidth - 0.08), 1.55, z);
+      sc.rotation.z = side * 0.35;
+      root.add(sc);
+    }
+  }
+
+  // Technik-Kabine: weißer, runder Kasten oben an der rechten Saalwand, Profiler oben auf der Stange
+  const booth = new THREE.Group();
+  const boothMat = std('#efede6', { roughness: 0.7, side: THREE.DoubleSide });
+  const shell = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.6, 1.5, 32, 1, false, Math.PI / 2, Math.PI), boothMat);
+  shell.rotation.x = Math.PI / 2;
+  shell.rotation.z = Math.PI / 2;
+  shell.position.y = 0.0;
+  booth.add(shell);
+  booth.add(box(1.2, 0.05, 1.5, boothMat, 0, 0, 0));
+  booth.add(box(1.2, 0.04, 0.04, steel, 0, 0.55, -0.6));
+  booth.position.set(3.15, 1.95, 3.6);
+  booth.rotation.y = -0.25;
+  booth.traverse((o) => { if (o.isMesh) o.name = 'Technik'; });
+  root.add(booth);
+
+  // lange Tische an den Saalseiten (längs, damit sie den Blick auf die Bühne nicht verstellen)
+  const tableMat = std('#2b211b', { roughness: 0.6 });
+  for (const x of [-2.75, 2.75]) {
+    root.add(box(0.6, 0.04, 2.2, tableMat, x, 0.72, 2.4));
+    for (const z of [1.5, 3.3]) root.add(box(0.5, 0.72, 0.05, tableMat, x, 0, z));
+  }
+
   // Ziegel-Tresen links vorne
   root.add(box(0.8, 0.95, 1.5, std('#a8644a', { roughness: 1 }), -4.0, 0, 0.6));
   root.add(box(0.85, 0.05, 1.55, std('#c08a4a'), -4.0, 0.95, 0.6));
@@ -290,7 +345,27 @@ function buildProp(p) {
     g.add(box(w, h * 0.5, d * 0.25, mat, 0, h * 0.5, -d * 0.375));
     g.add(box(w * 0.1, h * 0.3, d, mat, -w * 0.45, h * 0.5, 0));
     g.add(box(w * 0.1, h * 0.3, d, mat, w * 0.45, h * 0.5, 0));
-    g.add(box(w * 0.95, 0.08, d * 0.9, std('#b08a50'), 0, 0, 0));
+    // helle Holzfüße
+    for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.add(box(0.05, 0.1, 0.05, std('#c49a62'), sx * (w / 2 - 0.08), 0, sz * (d / 2 - 0.08)));
+  } else if (p.kind === 'cabinet') {
+    g.add(box(w, h, d, mat, 0, 0, 0));
+    const wood = std('#8a5a2c');
+    for (const dx of [-w / 4, w / 4]) g.add(box(w / 2 - 0.04, h - 0.12, 0.01, wood, dx, 0.06, d / 2));
+    const glassMat = std('#cfe3dc', { transparent: true, opacity: 0.55, roughness: 0.1 });
+    [[-0.35, 0.3], [-0.22, 0.24], [-0.1, 0.32], [0.3, 0.12]].forEach(([dx, bh]) => {
+      const b = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, bh, 12), glassMat);
+      b.position.set(dx, h + bh / 2, 0);
+      g.add(b);
+    });
+  } else if (p.kind === 'glasstable') {
+    const top = new THREE.Mesh(new THREE.CylinderGeometry(w / 2, w / 2, 0.02, 32), std('#d8ecef', { transparent: true, opacity: 0.4, roughness: 0.05 }));
+    top.position.y = h;
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, h, 8), std('#333', { metalness: 0.8 }));
+    leg.position.y = h / 2;
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(w * 0.42, 0.01, 6, 32), std('#333', { metalness: 0.8 }));
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.02;
+    g.add(top, leg, ring);
   } else if (p.kind === 'armchair') {
     const seat = new THREE.Mesh(new THREE.CylinderGeometry(w * 0.45, w * 0.42, h * 0.25, 24), mat);
     seat.position.y = h * 0.5;

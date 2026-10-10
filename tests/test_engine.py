@@ -1,3 +1,5 @@
+from conftest import default_fixture_count
+
 import time
 
 from lichtpult.core.engine import Engine
@@ -6,7 +8,7 @@ from lichtpult.core.store import Store
 
 def test_defaults_loaded_without_conflicts(engine):
     payload = engine.rig_payload()
-    assert len(payload["rig"]["fixtures"]) == 16
+    assert len(payload["rig"]["fixtures"]) == default_fixture_count()
     assert payload["conflicts"] == []
 
 
@@ -70,7 +72,7 @@ def test_persistence_roundtrip(tmp_path):
 def test_broken_file_falls_back_to_default(tmp_path):
     (tmp_path / "rig.json").write_text("{kaputt")
     e = Engine(Store(tmp_path))
-    assert len(e.rig.fixtures) == 16
+    assert len(e.rig.fixtures) == default_fixture_count()
     assert (tmp_path / "rig.json.broken").exists()
 
 

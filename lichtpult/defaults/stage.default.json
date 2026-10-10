@@ -56,7 +56,7 @@
       "color": "#9a5a2f"
     },
     {
-      "kind": "box",
+      "kind": "cabinet",
       "name": "Kommode",
       "position": [
         -0.7,
@@ -114,6 +114,21 @@
         0.8
       ],
       "color": "#5c5c5c"
+    },
+    {
+      "kind": "glasstable",
+      "name": "Beistelltisch",
+      "position": [
+        1.45,
+        0.4,
+        -2.3
+      ],
+      "size": [
+        0.45,
+        0.55,
+        0.45
+      ],
+      "color": "#d8ecef"
     }
   ]
 }

@@ -20,3 +20,11 @@ def engine(tmp_path):
 def client(tmp_path):
     with TestClient(create_app(tmp_path, sim=True)) as c:
         yield c
+
+
+def default_fixture_count() -> int:
+    import json
+
+    from lichtpult.config import DEFAULTS_DIR
+
+    return len(json.loads((DEFAULTS_DIR / "rig.default.json").read_text(encoding="utf-8"))["fixtures"])

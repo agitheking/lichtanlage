@@ -5,7 +5,8 @@ def test_status_sim(client):
 
 def test_fixture_crud(client):
     new_id = client.get("/api/fixtures/new-id").json()["id"]
-    assert new_id == "f17"
+    existing = {f["id"] for f in client.get("/api/rig").json()["rig"]["fixtures"]}
+    assert new_id not in existing
     fx = {"id": new_id, "name": "Neu", "typeId": "generic-dimmer-1ch", "address": 500, "mount": {"kind": "arc", "t": 0.5}}
     r = client.post("/api/fixtures", json=fx)
     assert r.status_code == 200

@@ -372,6 +372,141 @@
         "mitte"
       ],
       "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
+    },
+    {
+      "id": "f17",
+      "name": "LED-PAR in der Bühne",
+      "typeId": "par-rgbwa-uv-8ch",
+      "address": 81,
+      "enabled": true,
+      "verified": false,
+      "mount": {
+        "kind": "free",
+        "position": [
+          -1.9,
+          2.38,
+          -1.35
+        ]
+      },
+      "target": [
+        -0.6,
+        0.4,
+        -2.6
+      ],
+      "beamAngleDeg": null,
+      "shape": "round",
+      "groups": [
+        "buehne"
+      ],
+      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+    },
+    {
+      "id": "f18",
+      "name": "PAR-Kanne in der Bühne",
+      "typeId": "generic-dimmer-1ch",
+      "address": 10,
+      "enabled": true,
+      "verified": false,
+      "mount": {
+        "kind": "free",
+        "position": [
+          -1.2,
+          2.36,
+          -1.85
+        ]
+      },
+      "target": [
+        0.2,
+        0.4,
+        -3.0
+      ],
+      "beamAngleDeg": 30,
+      "shape": "round",
+      "groups": [
+        "buehne"
+      ],
+      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+    },
+    {
+      "id": "f19",
+      "name": "Kasten in der Bühne",
+      "typeId": "generic-dimmer-1ch",
+      "address": 11,
+      "enabled": true,
+      "verified": false,
+      "mount": {
+        "kind": "free",
+        "position": [
+          -2.15,
+          2.33,
+          -2.15
+        ]
+      },
+      "target": [
+        -1.5,
+        0.4,
+        -3.4
+      ],
+      "beamAngleDeg": 40,
+      "shape": "square",
+      "groups": [
+        "buehne"
+      ],
+      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+    },
+    {
+      "id": "f20",
+      "name": "Profiler Technik 1",
+      "typeId": "generic-profile-1ch",
+      "address": 14,
+      "enabled": true,
+      "verified": false,
+      "mount": {
+        "kind": "free",
+        "position": [
+          2.85,
+          2.6,
+          3.35
+        ]
+      },
+      "target": [
+        -0.3,
+        1.0,
+        -1.6
+      ],
+      "beamAngleDeg": 18,
+      "shape": "profile",
+      "groups": [
+        "technik"
+      ],
+      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+    },
+    {
+      "id": "f21",
+      "name": "Profiler Technik 2",
+      "typeId": "generic-profile-1ch",
+      "address": 15,
+      "enabled": true,
+      "verified": false,
+      "mount": {
+        "kind": "free",
+        "position": [
+          3.35,
+          2.6,
+          3.55
+        ]
+      },
+      "target": [
+        0.6,
+        1.0,
+        -1.8
+      ],
+      "beamAngleDeg": 18,
+      "shape": "profile",
+      "groups": [
+        "technik"
+      ],
+      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
     }
   ],
   "groups": [
@@ -389,6 +524,16 @@
       "id": "rechts",
       "name": "Rechts",
       "color": "#ff6a4a"
+    },
+    {
+      "id": "buehne",
+      "name": "In der Bühne",
+      "color": "#7be08a"
+    },
+    {
+      "id": "technik",
+      "name": "Technik",
+      "color": "#c58bff"
     }
   ]
 }

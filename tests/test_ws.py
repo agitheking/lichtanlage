@@ -1,7 +1,10 @@
+from conftest import default_fixture_count
+
+
 def test_hello_and_levels_broadcast(client):
     with client.websocket_connect("/ws") as a, client.websocket_connect("/ws") as b:
         hello = a.receive_json()
-        assert hello["type"] == "hello" and len(hello["rig"]["fixtures"]) == 16
+        assert hello["type"] == "hello" and len(hello["rig"]["fixtures"]) == default_fixture_count()
 
         def until(ws, kind):
             while True:
