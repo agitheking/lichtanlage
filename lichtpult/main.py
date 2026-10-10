@@ -60,6 +60,14 @@ def create_app(
     app.include_router(ws.router)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+    @app.middleware("http")
+    async def no_stale_static(request, call_next):
+        # lokale App: nach Updates immer die aktuellen Module laden (ETag-Revalidierung)
+        response = await call_next(request)
+        if request.url.path.startswith("/static/") and "/vendor/" not in request.url.path:
+            response.headers["Cache-Control"] = "no-cache"
+        return response
+
     @app.get("/", include_in_schema=False)
     def index():
         return FileResponse(STATIC_DIR / "index.html", headers={"Cache-Control": "no-cache"})

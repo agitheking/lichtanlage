@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lichtpult</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='12' r='8' fill='%23ffc94a'/><path d='M8 30 L16 14 L24 30Z' fill='%23ffc94a' opacity='.5'/></svg>">
+  <link rel="stylesheet" href="/static/css/app.css">
+  <script type="importmap">
+    { "imports": {
+        "three": "/static/vendor/three/three.module.js",
+        "three/addons/": "/static/vendor/three/addons/"
+    } }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">💡 Lichtpult</div>
+    <nav class="tabs" role="tablist">
+      <a href="#stage" data-tab="stage" role="tab">Bühne</a>
+      <a href="#scenes" data-tab="scenes" role="tab">Szenen</a>
+      <a href="#admin" data-tab="admin" role="tab">Einrichtung</a>
+    </nav>
+    <div class="spacer"></div>
+    <label class="gm" title="Grand Master: begrenzt die Helligkeit aller Scheinwerfer">
+      <span>Master</span>
+      <input type="range" id="gm" min="0" max="100" value="100">
+      <output id="gm-out">100 %</output>
+    </label>
+    <button id="btn-blackout" class="btn blackout" title="Alles dunkel (Taste B)">Blackout</button>
+    <div id="dmx-status" class="status-pill" title="DMX-Status">…</div>
+  </header>
+
+  <div id="banner-sim" class="banner warn" hidden></div>
+  <div id="banner-raw" class="banner info" hidden>
+    <span>Einrichtungsmodus: Die Ausgabe wird gerade von der Einrichtung gesteuert.</span>
+    <button class="btn small" id="btn-clear-raw">Beenden</button>
+  </div>
+
+  <main>
+    <section id="tab-stage" class="tab" hidden></section>
+    <section id="tab-scenes" class="tab" hidden></section>
+    <section id="tab-admin" class="tab" hidden></section>
+  </main>
+
+  <div id="toast" class="toast" hidden></div>
+  <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>
