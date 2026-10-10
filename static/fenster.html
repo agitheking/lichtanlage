@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="de" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zugfenster</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  #hint {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    font: 600 15px system-ui, sans-serif; color: #f3e6c8; background: rgba(0, 0, 0, .55);
+    padding: 8px 14px; border-radius: 8px; transition: opacity 1s; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hint">Klick = Ton an/aus · T = Tunnel · B = Brücke · +/− = Tempo · F = Vollbild</div>
+<script>
+// Virtuelles Zugfenster einer Dampfeisenbahn.
+// URL-Parameter: licht=1 (steuert Fenster-LEDs über die Lichtpult-API), fenster=f02,f10 (welche LEDs),
+//                ton=0 (ohne Ton), tempo=1.0
+const P = new URLSearchParams(location.search);
+const LIGHT = P.get('licht') === '1';
+const WINDOW_FX = (P.get('fenster') || 'f02,f10').split(',');
+let tempo = Number(P.get('tempo') || 1);
+
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+let W, H, DPR;
+function resize() {
+  DPR = Math.min(devicePixelRatio || 1, 2);
+  W = innerWidth; H = innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+addEventListener('resize', resize);
+resize();
+
+// ------------------------------------------------------------ Zufall/Noise
+function hash(n) { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+function noise(x) { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return hash(i) * (1 - u) + hash(i + 1) * u; }
+function fbm(x, oct = 4) { let a = 0, amp = 0.5, fr = 1; for (let i = 0; i < oct; i++) { a += amp * noise(x * fr); amp *= 0.5; fr *= 2; } return a; }
+
+// ------------------------------------------------------------ Fenster-Geometrie
+function win() {
+  const w = Math.min(W * 0.78, H * 1.25), h = Math.min(H * 0.62, w * 0.62);
+  return { x: (W - w) / 2, y: H * 0.13, w, h, r: Math.min(w, h) * 0.08 };
+}
+function rr(x, y, w, h, r, newPath = true) {
+  if (newPath) ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+// ------------------------------------------------------------ Ereignisse: Tunnel, Brücke
+let dist = 0;            // zurückgelegte Strecke (px bei Parallaxe 1)
+const SPEED = 520;       // px/s bei tempo 1
+let tunnel = null;       // {start, len}
+let bridge = null;
+function scheduleEvents() {
+  if (!tunnel && Math.random() < 0.0009 * tempo) tunnel = { start: dist + W * 1.2, len: 2200 + Math.random() * 2600 };
+  if (!bridge && !tunnel && Math.random() < 0.0012 * tempo) bridge = { start: dist + W * 1.2, len: 1600 + Math.random() * 1200 };
+  if (tunnel && dist > tunnel.start + tunnel.len + W * 2) tunnel = null;
+  if (bridge && dist > bridge.start + bridge.len + W * 2) bridge = null;
+}
+// ------------------------------------------------------------ Landschaftsebenen
+function drawSky(wx, t) {
+  const g = ctx.createLinearGradient(0, wx.y, 0, wx.y + wx.h);
+  g.addColorStop(0, '#6fa6d8'); g.addColorStop(0.55, '#bcd7e6'); g.addColorStop(1, '#f2e2b8');
+  ctx.fillStyle = g; ctx.fillRect(wx.x, wx.y, wx.w, wx.h);
+  // Sonne
+  const sx = wx.x + wx.w * 0.78, sy = wx.y + wx.h * 0.2;
+  const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, wx.h * 0.35);
+  sg.addColorStop(0, 'rgba(255,248,215,1)'); sg.addColorStop(0.12, 'rgba(255,240,190,.9)'); sg.addColorStop(1, 'rgba(255,230,170,0)');
+  ctx.fillStyle = sg; ctx.fillRect(wx.x, wx.y, wx.w, wx.h);
+  // Wolken (sehr langsam)
+  for (let i = 0; i < 6; i++) {
+    const span = wx.w + 400;
+    const cx = wx.x + ((i * 397 - dist * 0.02 - t * 4) % span + span) % span - 200;
+    const cy = wx.y + wx.h * (0.08 + 0.12 * hash(i + 3));
+    ctx.fillStyle = 'rgba(255,255,255,.75)';
+    for (let k = 0; k < 5; k++) {
+      ctx.beginPath();
+      ctx.ellipse(cx + k * 28 - 56, cy + Math.sin(k * 2 + i) * 6, 40 + 12 * hash(i * 7 + k), 18 + 6 * hash(i + k), 0, 0, 7);
+      ctx.fill();
+    }
+  }
+}
+
+function ridge(wx, par, base, amp, freq, color, seed) {
+  const off = dist * par;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(wx.x, wx.y + wx.h);
+  for (let x = 0; x <= wx.w; x += 6) {
+    const y = wx.y + wx.h * base - fbm((x + off) * freq + seed) * wx.h * amp;
+    ctx.lineTo(wx.x + x, y);
+  }
+  ctx.lineTo(wx.x + wx.w, wx.y + wx.h);
+  ctx.fill();
+}
+
+function drawFields(wx) {
+  const par = 0.35, off = dist * par, top = wx.y + wx.h * 0.66;
+  const cols = ['#9bb85a', '#c9b45a', '#86a94c', '#b8c76a', '#a7924b', '#7fa35a'];
+  const seg = 260;
+  const first = Math.floor(off / seg);
+  for (let i = first; i < first + Math.ceil(wx.w / seg) + 2; i++) {
+    const x = wx.x + i * seg - off;
+    ctx.fillStyle = cols[Math.floor(hash(i) * cols.length)];
+    ctx.beginPath();
+    ctx.moveTo(x, top); ctx.lineTo(x + seg, top); ctx.lineTo(x + seg * 1.4, wx.y + wx.h); ctx.lineTo(x - seg * 0.2, wx.y + wx.h);
+    ctx.fill();
+    // Hecke
+    ctx.fillStyle = 'rgba(52,82,38,.85)';
+    ctx.fillRect(x, top - 4, seg * 0.9, 6);
+    // Häuschen oder Kuh
+    const r = hash(i * 3.7);
+    if (r < 0.18) house(x + seg * 0.4, top - 2, 28);
+    else if (r < 0.3) cow(x + seg * 0.6, top + 26);
+  }
+}
+
+function house(x, y, s) {
+  ctx.fillStyle = '#e9dcc0'; ctx.fillRect(x, y - s * 0.7, s, s * 0.7);
+  ctx.fillStyle = '#a8442f';
+  ctx.beginPath(); ctx.moveTo(x - 4, y - s * 0.7); ctx.lineTo(x + s / 2, y - s * 1.2); ctx.lineTo(x + s + 4, y - s * 0.7); ctx.fill();
+  ctx.fillStyle = '#3b3a37'; ctx.fillRect(x + s * 0.4, y - s * 0.35, s * 0.2, s * 0.35);
+}
+
+function cow(x, y) {
+  ctx.fillStyle = '#f4f1ea'; ctx.beginPath(); ctx.ellipse(x, y, 13, 7, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#2a2724'; ctx.beginPath(); ctx.ellipse(x - 3, y - 1, 5, 4, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#f4f1ea'; ctx.beginPath(); ctx.ellipse(x + 14, y - 4, 5, 4, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = '#2a2724'; for (const dx of [-8, -3, 5, 9]) ctx.fillRect(x + dx, y + 5, 2, 7);
+}
+
+function tree(x, ground, s, dark) {
+  ctx.fillStyle = dark ? '#3d2c1c' : '#5a4128';
+  ctx.fillRect(x - s * 0.06, ground - s * 0.9, s * 0.12, s * 0.9);
+  const green = dark ? ['#2e4f24', '#3a6129', '#27451f'] : ['#4f7d34', '#5f913b', '#45702e'];
+  for (let k = 0; k < 6; k++) {
+    ctx.fillStyle = green[k % 3];
+    ctx.beginPath();
+    ctx.arc(x + (hash(x * 0.01 + k) - 0.5) * s * 0.7, ground - s * (0.95 + hash(k + x * 0.02) * 0.5), s * (0.28 + hash(k * 3 + x) * 0.15), 0, 7);
+    ctx.fill();
+  }
+}
+
+let nearShadow = 0;
+function drawNear(wx) {
+  // nahe Bäume/Büsche, schnelle Parallaxe
+  const par = 1.0, off = dist * par, ground = wx.y + wx.h * 1.02, step = 170;
+  const first = Math.floor(off / step);
+  nearShadow = 0;
+  const cx = wx.x + wx.w / 2;
+  for (let i = first; i < first + Math.ceil(wx.w / step) + 3; i++) {
+    const r = hash(i * 1.913);
+    if (r < 0.45) continue;
+    const x = wx.x + i * step - off + hash(i) * 80;
+    const s = wx.h * (0.35 + 0.55 * hash(i * 5.1));
+    tree(x, ground, s, true);
+    nearShadow = Math.max(nearShadow, Math.max(0, 1 - Math.abs(x - cx) / (s * 0.8)) * (s / wx.h));
+  }
+}
+
+function drawPoles(wx) {
+  const par = 1.35, off = dist * par, spacing = wx.w * 0.55;
+  const first = Math.floor(off / spacing);
+  const tops = [];
+  for (let i = first - 1; i < first + Math.ceil(wx.w / spacing) + 2; i++) {
+    const x = wx.x + i * spacing - off;
+    tops.push(x);
+    ctx.fillStyle = '#3a2a1a';
+    ctx.fillRect(x - 5, wx.y - 10, 10, wx.h + 20);
+    ctx.fillRect(x - 26, wx.y + wx.h * 0.12, 52, 5);
+    ctx.fillStyle = '#d9d2c0';
+    for (const dx of [-20, -8, 8, 20]) ctx.fillRect(x + dx - 2, wx.y + wx.h * 0.12 - 6, 4, 6);
+  }
+  // Leitungen (durchhängend)
+  ctx.strokeStyle = 'rgba(30,25,20,.75)';
+  ctx.lineWidth = 1.4;
+  for (const dx of [-20, -8, 8, 20]) {
+    for (let k = 0; k < tops.length - 1; k++) {
+      const a = tops[k] + dx, b = tops[k + 1] + dx, y = wx.y + wx.h * 0.12 - 6;
+      ctx.beginPath(); ctx.moveTo(a, y); ctx.quadraticCurveTo((a + b) / 2, y + wx.h * 0.09, b, y); ctx.stroke();
+    }
+  }
+}
+
+function drawBridge(wx) {
+  if (!bridge) return 0;
+  const s = bridge.start - dist + wx.x + wx.w, e = s + bridge.len;
+  if (e < wx.x || s > wx.x + wx.w) return 0;
+  // Fluss unten
+  ctx.fillStyle = '#4f7fa3';
+  ctx.fillRect(Math.max(wx.x, s), wx.y + wx.h * 0.7, Math.min(e, wx.x + wx.w) - Math.max(wx.x, s), wx.h * 0.3);
+  ctx.fillStyle = 'rgba(255,255,255,.35)';
+  for (let k = 0; k < 14; k++) ctx.fillRect(Math.max(wx.x, s) + ((k * 137 + dist * 0.4) % (e - s)), wx.y + wx.h * (0.75 + 0.2 * hash(k)), 30, 2);
+  // Stahlträger fliegen vorbei
+  ctx.strokeStyle = '#2c2c2e'; ctx.lineWidth = 9;
+  const step = 140, off = dist * 1.5;
+  for (let x = s - (off % step); x < e; x += step) {
+    if (x < wx.x - step || x > wx.x + wx.w + step) continue;
+    ctx.beginPath(); ctx.moveTo(x, wx.y + wx.h); ctx.lineTo(x + step, wx.y + wx.h * 0.25); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, wx.y + wx.h * 0.25); ctx.lineTo(x, wx.y + wx.h); ctx.stroke();
+  }
+  ctx.fillStyle = '#2c2c2e'; ctx.fillRect(Math.max(wx.x, s), wx.y + wx.h * 0.22, Math.min(e, wx.x + wx.w) - Math.max(wx.x, s), 12);
+  return 1;
+}
+
+function drawTunnel(wx) {
+  if (!tunnel) return 0;
+  const s = tunnel.start - dist + wx.x + wx.w, e = s + tunnel.len;
+  if (e < wx.x - 200 || s > wx.x + wx.w + 200) return 0;
+  const a = Math.max(wx.x, s), b = Math.min(wx.x + wx.w, e);
+  if (b > a) {
+    ctx.fillStyle = '#0b0a09'; ctx.fillRect(a, wx.y, b - a, wx.h);
+    // Mauerwerk an den Portalen
+    ctx.fillStyle = '#5a5047';
+    if (s > wx.x) ctx.fillRect(s - 40, wx.y, 40, wx.h);
+    if (e < wx.x + wx.w) ctx.fillRect(e, wx.y, 40, wx.h);
+    // Tunnellampen huschen vorbei
+    const step = 420;
+    for (let x = a - ((dist * 1.4) % step); x < b; x += step) {
+      if (x < a) continue;
+      const g = ctx.createRadialGradient(x, wx.y + wx.h * 0.3, 0, x, wx.y + wx.h * 0.3, 70);
+      g.addColorStop(0, 'rgba(255,214,140,.95)'); g.addColorStop(1, 'rgba(255,200,120,0)');
+      ctx.fillStyle = g; ctx.fillRect(x - 70, wx.y + wx.h * 0.3 - 70, 140, 140);
+    }
+  }
+  return Math.max(0, Math.min(1, (b - a) / wx.w));
+}
+
+// ------------------------------------------------------------ Dampf
+const puffs = [];
+function updateSteam(wx, dt) {
+  if (Math.random() < dt * 3.5 * tempo) {
+    puffs.push({ x: wx.x + wx.w + 40, y: wx.y + wx.h * (0.05 + Math.random() * 0.2), r: 30 + Math.random() * 40, a: 0.85, vx: -(SPEED * 0.75 * tempo) * (0.8 + Math.random() * 0.4), vy: 10 + Math.random() * 25 });
+  }
+  for (const p of puffs) { p.x += p.vx * dt; p.y += p.vy * dt; p.r += 28 * dt; p.a -= 0.18 * dt; }
+  while (puffs.length && (puffs[0].a <= 0 || puffs[0].x < wx.x - 200)) puffs.shift();
+  for (const p of puffs) {
+    const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
+    g.addColorStop(0, `rgba(245,245,242,${p.a})`); g.addColorStop(1, 'rgba(235,235,230,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill();
+  }
+}
+
+// ------------------------------------------------------------ Abteil (Rahmen, Vorhänge)
+function drawCabin(wx, shakeY, light) {
+  // Holzvertäfelung mit Ausschnitt fürs Fenster
+  ctx.save();
+  ctx.beginPath(); ctx.rect(0, 0, W, H); rr(wx.x, wx.y + shakeY, wx.w, wx.h, wx.r, false); ctx.clip('evenodd');
+  const wood = ctx.createLinearGradient(0, 0, 0, H);
+  wood.addColorStop(0, '#4a2a17'); wood.addColorStop(0.5, '#5e361d'); wood.addColorStop(1, '#3a2012');
+  ctx.fillStyle = wood; ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 2;
+  for (let x = 0; x < W; x += 90) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  // Lichtschein durchs Fenster auf der Vertäfelung
+  const lg = ctx.createRadialGradient(W / 2, wx.y + wx.h / 2, wx.h * 0.4, W / 2, wx.y + wx.h / 2, W * 0.7);
+  lg.addColorStop(0, `rgba(255,236,190,${0.18 * light})`); lg.addColorStop(1, 'rgba(255,236,190,0)');
+  ctx.fillStyle = lg; ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+  // Messingrahmen
+  ctx.lineWidth = 14; ctx.strokeStyle = '#b08a3e'; rr(wx.x, wx.y + shakeY, wx.w, wx.h, wx.r); ctx.stroke();
+  ctx.lineWidth = 3; ctx.strokeStyle = '#e6c977'; rr(wx.x + 5, wx.y + shakeY + 5, wx.w - 10, wx.h - 10, wx.r * 0.9); ctx.stroke();
+  // Fenstersprosse (Klappfenster oben)
+  ctx.fillStyle = '#b08a3e'; ctx.fillRect(wx.x, wx.y + shakeY + wx.h * 0.24, wx.w, 8);
+  // Fensterbank
+  ctx.fillStyle = '#2e190c'; ctx.fillRect(wx.x - 30, wx.y + wx.h + 14, wx.w + 60, 26);
+  ctx.fillStyle = '#6e4224'; ctx.fillRect(wx.x - 30, wx.y + wx.h + 10, wx.w + 60, 8);
+  // Vorhänge
+  for (const side of [-1, 1]) {
+    const x0 = side < 0 ? wx.x - wx.w * 0.06 : wx.x + wx.w - wx.w * 0.1;
+    const cw = wx.w * 0.16;
+    for (let k = 0; k < 6; k++) {
+      const g = ctx.createLinearGradient(x0 + k * cw / 6, 0, x0 + (k + 1) * cw / 6, 0);
+      g.addColorStop(0, '#5e0f12'); g.addColorStop(0.5, '#9a1d22'); g.addColorStop(1, '#5e0f12');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(x0 + k * cw / 6, wx.y - 30);
+      ctx.lineTo(x0 + (k + 1) * cw / 6, wx.y - 30);
+      ctx.quadraticCurveTo(x0 + cw * 0.5 + side * 10, wx.y + wx.h * 0.55, x0 + (k + 1) * cw / 6 - side * 20, wx.y + wx.h + 20);
+      ctx.lineTo(x0 + k * cw / 6 - side * 20, wx.y + wx.h + 20);
+      ctx.fill();
+    }
+    // Raffhalter
+    ctx.fillStyle = '#d6b35a'; ctx.fillRect(x0 + cw * 0.15, wx.y + wx.h * 0.55, cw * 0.7, 7);
+  }
+  // Gepäckablage oben
+  ctx.fillStyle = '#1e120a'; ctx.fillRect(0, wx.y - 70, W, 14);
+  ctx.strokeStyle = '#b08a3e'; ctx.lineWidth = 2;
+  for (let x = 20; x < W; x += 24) { ctx.beginPath(); ctx.moveTo(x, wx.y - 56); ctx.lineTo(x + 10, wx.y - 40); ctx.stroke(); }
+}
+
+function glass(wx, shakeY) {
+  const g = ctx.createLinearGradient(wx.x, wx.y, wx.x + wx.w, wx.y + wx.h);
+  g.addColorStop(0, 'rgba(255,255,255,.10)'); g.addColorStop(0.35, 'rgba(255,255,255,0)');
+  g.addColorStop(0.6, 'rgba(255,255,255,.05)'); g.addColorStop(1, 'rgba(0,0,0,.12)');
+  ctx.fillStyle = g; rr(wx.x, wx.y + shakeY, wx.w, wx.h, wx.r); ctx.fill();
+}
+
+// ------------------------------------------------------------ Ton (Dampflok + Schienenstöße)
+let audio = null, soundOn = P.get('ton') !== '0';
+function initAudio() {
+  if (audio) return;
+  const ac = new AudioContext();
+  const master = ac.createGain(); master.gain.value = 0.35; master.connect(ac.destination);
+  const nb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+  const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const rumble = ac.createBufferSource(); rumble.buffer = nb; rumble.loop = true;
+  const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 140;
+  const rg = ac.createGain(); rg.gain.value = 0.35;
+  rumble.connect(lp).connect(rg).connect(master); rumble.start();
+  audio = { ac, master, nb, nextChuff: ac.currentTime + 0.1, beat: 0, nextClack: ac.currentTime + 0.5 };
+}
+function noiseHit(t, freq, q, gain, dur) {
+  const { ac, master, nb } = audio;
+  const s = ac.createBufferSource(); s.buffer = nb;
+  const f = ac.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+  const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + 0.015); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  s.connect(f).connect(g).connect(master); s.start(t, Math.random()); s.stop(t + dur + 0.05);
+}
+function scheduleAudio(tunnelK) {
+  if (!audio || !soundOn) return;
+  const { ac } = audio;
+  const period = 0.3 / tempo;   // Schnaufen: 4 pro Radumdrehung
+  while (audio.nextChuff < ac.currentTime + 0.2) {
+    const accent = audio.beat % 4 === 0 ? 1 : 0.65;
+    noiseHit(audio.nextChuff, 900 + 300 * Math.random(), 0.8, 0.5 * accent * (1 + tunnelK * 0.6), 0.22);
+    audio.nextChuff += period; audio.beat++;
+  }
+  while (audio.nextClack < ac.currentTime + 0.2) {   // ta-tamm … ta-tamm
+    noiseHit(audio.nextClack, 2600, 3, 0.35, 0.05);
+    noiseHit(audio.nextClack + 0.13 / tempo, 2300, 3, 0.4, 0.06);
+    audio.nextClack += (1.6 + Math.random() * 0.2) / tempo;
+  }
+}
+function whistle() {
+  if (!audio || !soundOn) return;
+  const { ac, master } = audio, t = ac.currentTime;
+  for (const f of [520, 655, 780]) {
+    const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = f;
+    const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.07, t + 0.15); g.gain.setValueAtTime(0.07, t + 1.3); g.gain.linearRampToValueAtTime(0, t + 1.7);
+    o.connect(g).connect(master); o.start(t); o.stop(t + 1.8);
+  }
+}
+function toggleSound() {
+  initAudio();
+  soundOn = !soundOn || audio.ac.state !== 'running';
+  if (soundOn) { audio.ac.resume(); audio.master.gain.value = 0.35; } else audio.master.gain.value = 0;
+}
+addEventListener('click', toggleSound);
+if (soundOn) { try { initAudio(); } catch (e) { /* Autoplay blockiert: Klick nötig */ } }
+
+// ------------------------------------------------------------ Licht (Fenster-LEDs folgen dem Bild)
+let lastSent = -1, lastSendT = 0;
+function sendLight(level, now) {
+  if (!LIGHT || now - lastSendT < 0.1 || Math.abs(level - lastSent) < 0.02) return;
+  lastSendT = now; lastSent = level;
+  const lv = {};
+  for (const id of WINDOW_FX) lv[id] = { dimmer: Math.round(level * 100) / 100, r: 1, g: 0.85, b: 0.55, w: 1, a: 0.3 };
+  fetch('/api/levels', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ levels: lv, fade: 0 }) }).catch(() => {});
+}
+
+// ------------------------------------------------------------ Tastatur
+addEventListener('keydown', (e) => {
+  const wx = win();
+  if (e.key === 't' || e.key === 'T') tunnel = { start: dist + wx.w * 0.3, len: 2600 };
+  if (e.key === 'b' || e.key === 'B') bridge = { start: dist + wx.w * 0.3, len: 1800 };
+  if (e.key === '+') tempo = Math.min(2.5, tempo + 0.1);
+  if (e.key === '-') tempo = Math.max(0.2, tempo - 0.1);
+  if (e.key === 'p' || e.key === 'P') whistle();
+  if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+});
+setTimeout(() => { document.getElementById('hint').style.opacity = 0; }, 6000);
+
+// ------------------------------------------------------------ Hauptschleife
+let last = performance.now(), nextWhistle = 20 + Math.random() * 40;
+function frame(nowMs) {
+  const dt = Math.min(0.05, (nowMs - last) / 1000); last = nowMs;
+  const t = nowMs / 1000;
+  dist += SPEED * tempo * dt;
+  scheduleEvents();
+  const wx = win();
+  // Ruckeln: Schienenstoß-Rhythmus + leichtes Schwanken
+  const phase = (t * tempo / 1.65) % 1;
+  const shakeY = Math.sin(t * 2.1) * 1.5 + (phase < 0.08 ? -3 * Math.sin(phase / 0.08 * Math.PI) : 0);
+
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  ctx.save();
+  rr(wx.x, wx.y + shakeY, wx.w, wx.h, wx.r); ctx.clip();
+  ctx.translate(0, shakeY);
+  drawSky(wx, t);
+  ridge(wx, 0.04, 0.62, 0.38, 0.0022, '#8fa3b8', 10);      // ferne Berge
+  ridge(wx, 0.08, 0.66, 0.22, 0.004, '#7d9a86', 50);      // Vorberge
+  ridge(wx, 0.16, 0.72, 0.16, 0.006, '#6f9450', 90);      // Hügel
+  drawFields(wx);
+  const onBridge = drawBridge(wx);
+  if (!onBridge) drawNear(wx); else nearShadow = 0;
+  drawPoles(wx);
+  updateSteam(wx, dt);
+  const tunnelK = drawTunnel(wx);
+  ctx.restore();
+  glass(wx, shakeY);
+
+  const light = (1 - tunnelK) * (1 - 0.7 * Math.min(1, nearShadow));
+  drawCabin(wx, shakeY, light);
+  sendLight(0.12 + 0.78 * light, t);
+  scheduleAudio(tunnelK);
+  if (t > nextWhistle) { whistle(); nextWhistle = t + 40 + Math.random() * 70; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
