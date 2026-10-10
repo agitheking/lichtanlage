@@ -377,9 +377,9 @@
       "id": "f17",
       "name": "LED-PAR in der Bühne",
       "typeId": "par-rgbwa-uv-8ch",
-      "address": 81,
+      "address": 85,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "free",
         "position": [
@@ -398,15 +398,15 @@
       "groups": [
         "buehne"
       ],
-      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
     },
     {
       "id": "f18",
       "name": "PAR-Kanne in der Bühne",
       "typeId": "generic-dimmer-1ch",
-      "address": 10,
+      "address": 17,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "free",
         "position": [
@@ -420,20 +420,20 @@
         0.4,
         -3.0
       ],
-      "beamAngleDeg": 30,
+      "beamAngleDeg": 30.0,
       "shape": "round",
       "groups": [
         "buehne"
       ],
-      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
     },
     {
       "id": "f19",
       "name": "Kasten in der Bühne",
       "typeId": "generic-dimmer-1ch",
-      "address": 11,
+      "address": 14,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "free",
         "position": [
@@ -447,20 +447,20 @@
         0.4,
         -3.4
       ],
-      "beamAngleDeg": 40,
+      "beamAngleDeg": 40.0,
       "shape": "square",
       "groups": [
         "buehne"
       ],
-      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
     },
     {
       "id": "f20",
       "name": "Profiler Technik 1",
       "typeId": "generic-profile-1ch",
-      "address": 14,
+      "address": 21,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "free",
         "position": [
@@ -474,20 +474,20 @@
         1.0,
         -1.6
       ],
-      "beamAngleDeg": 18,
+      "beamAngleDeg": 18.0,
       "shape": "profile",
       "groups": [
         "technik"
       ],
-      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
     },
     {
       "id": "f21",
       "name": "Profiler Technik 2",
       "typeId": "generic-profile-1ch",
-      "address": 15,
+      "address": 23,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "free",
         "position": [
@@ -501,12 +501,66 @@
         1.0,
         -1.8
       ],
-      "beamAngleDeg": 18,
+      "beamAngleDeg": 18.0,
       "shape": "profile",
       "groups": [
         "technik"
       ],
-      "notes": "aus dem Video vom 2026-10-10 geschätzt – Adresse noch nicht gemessen"
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+    },
+    {
+      "id": "f22",
+      "name": "Rund in der Bühne",
+      "typeId": "generic-dimmer-1ch",
+      "address": 15,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "free",
+        "position": [
+          -1.55,
+          2.36,
+          -1.6
+        ]
+      },
+      "target": [
+        -0.2,
+        0.4,
+        -2.2
+      ],
+      "beamAngleDeg": 35.0,
+      "shape": "round",
+      "groups": [
+        "buehne"
+      ],
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt"
+    },
+    {
+      "id": "f23",
+      "name": "Licht Technik 3",
+      "typeId": "generic-dimmer-1ch",
+      "address": 24,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "free",
+        "position": [
+          3.0,
+          2.25,
+          3.0
+        ]
+      },
+      "target": [
+        0.0,
+        0.4,
+        -1.0
+      ],
+      "beamAngleDeg": 45.0,
+      "shape": "square",
+      "groups": [
+        "technik"
+      ],
+      "notes": "Adresse per Kamera gemessen (2026-10-10), Position aus dem Video geschätzt – kleineres Gerät an der Kabine, Typ unklar"
     }
   ],
   "groups": [
