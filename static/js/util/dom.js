@@ -38,3 +38,23 @@ export function download(filename, data) {
   a.click();
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
+
+// Modaler Dialog. buttons: [{ label, class, onclick }] – onclick darf ein Promise liefern;
+// liefert es false, bleibt der Dialog offen. Esc/„Abbrechen“ schließt ohne Aktion.
+export function dialog(title, content, buttons) {
+  const dlg = h('dialog', { class: 'dialog' });
+  const close = () => { dlg.close(); };
+  dlg.addEventListener('close', () => dlg.remove());
+  dlg.append(
+    h('h2', {}, title),
+    h('div', { class: 'stack' }, content),
+    h('div', { class: 'row end', style: { marginTop: '16px' } },
+      h('button', { class: 'btn', onclick: close }, 'Abbrechen'),
+      buttons.map((b) => h('button', {
+        class: `btn ${b.class ?? ''}`,
+        onclick: async () => { if ((await b.onclick()) !== false) close(); },
+      }, b.label))));
+  document.body.append(dlg);
+  dlg.showModal();
+  return dlg;
+}

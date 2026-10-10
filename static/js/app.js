@@ -5,6 +5,7 @@ import { StageView } from './scene/StageView.js';
 import { mountStageTab } from './ui/stage-tab.js';
 import { mountScenesTab } from './ui/scenes-tab.js';
 import { mountAdminTab } from './ui/admin-tab.js';
+import { mountProductionsTab } from './ui/productions-tab.js';
 
 const $ = (sel) => document.querySelector(sel);
 const view = new StageView();
@@ -12,22 +13,25 @@ const view = new StageView();
 const tabs = {
   stage: mountStageTab($('#tab-stage'), view),
   scenes: mountScenesTab($('#tab-scenes')),
+  produktionen: mountProductionsTab($('#tab-produktionen')),
   admin: mountAdminTab($('#tab-admin'), view),
 };
 let current = null;
 
 function route() {
-  const name = (location.hash.slice(1).split('/')[0] || 'stage');
-  const next = tabs[name] ? name : 'stage';
-  if (next === current) return;
-  if (current) {
-    tabs[current].hide?.();
-    $(`#tab-${current}`).hidden = true;
+  const [name, sub] = location.hash.slice(1).split('/');
+  const next = tabs[name || 'stage'] ? (name || 'stage') : 'stage';
+  if (next !== current) {
+    if (current) {
+      tabs[current].hide?.();
+      $(`#tab-${current}`).hidden = true;
+    }
+    current = next;
+    $(`#tab-${current}`).hidden = false;
+    document.querySelectorAll('.tabs a').forEach((a) => a.classList.toggle('active', a.dataset.tab === current));
+    tabs[current].show?.();
   }
-  current = next;
-  $(`#tab-${current}`).hidden = false;
-  document.querySelectorAll('.tabs a').forEach((a) => a.classList.toggle('active', a.dataset.tab === current));
-  tabs[current].show?.();
+  tabs[current].route?.(sub);
 }
 window.addEventListener('hashchange', route);
 
@@ -100,5 +104,5 @@ window.addEventListener('unhandledrejection', (e) => toast(e.reason?.message ?? 
 window.addEventListener('keydown', (e) => {
   if (e.target.closest('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === 'b' || e.key === 'B') { setBlackout(!store.levels.blackout); e.preventDefault(); }
-  else tabs[current]?.key?.(e);
+  else if (!document.querySelector('dialog[open]')) tabs[current]?.key?.(e);
 });

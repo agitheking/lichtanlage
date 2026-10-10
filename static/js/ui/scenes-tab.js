@@ -1,89 +1,56 @@
-// Tab „Szenen“: Lichtstimmungen speichern und mit Überblendzeit abrufen.
+// Tab „Szenen“ (Bibliothek): Lichtstimmungen speichern und mit Überblendzeit abrufen.
 import { api } from '../api.js';
 import { emit, on, store } from '../store.js';
-import { clear, h } from '../util/dom.js';
+import { dialog, h } from '../util/dom.js';
+import { createSceneList } from './scene-list.js';
 
 export function mountScenesTab(root) {
-  const list = h('div', { class: 'scene-list' });
-  const name = h('input', { type: 'text', placeholder: 'Name, z. B. „Akt 1 – Abend“', style: { flex: 1 } });
-  const fade = h('input', { type: 'number', min: 0, max: 60, step: 0.5, value: 2 });
-  const othersOff = h('input', { type: 'checkbox', checked: true });
+  const list = createSceneList({
+    scenes: () => store.scenes,
+    api: {
+      recall: (id, othersOff) => api.post(`/api/scenes/${id}/recall`, { othersOff }),
+      capture: (body) => api.post('/api/scenes/capture', body),
+      update: (id, body) => api.put(`/api/scenes/${id}`, body),
+      remove: (id) => api.del(`/api/scenes/${id}`),
+      reorder: (ids) => api.post('/api/scenes/reorder', { ids }),
+    },
+    extraButtons: (sc) => [h('button', {
+      class: 'btn small',
+      title: 'Eigenständige Kopie dieser Szene in einer Produktion anlegen',
+      onclick: () => copyToProduction(sc),
+    }, 'In Produktion kopieren')],
+    getActive: () => store.lastScene,
+    setActive: (id) => { store.lastScene = id; },
+    emptyText: 'Noch keine Szenen. Stelle im Tab „Bühne“ ein Licht ein und speichere es hier.',
+  });
 
-  async function capture() {
-    if (!name.value.trim()) return emit('toast', { text: 'Bitte einen Namen eingeben.' });
-    await api.post('/api/scenes/capture', { name: name.value.trim(), fade: Number(fade.value) || 0 });
-    emit('toast', { text: `Szene „${name.value.trim()}“ gespeichert.` });
-    name.value = '';
-  }
-  name.addEventListener('keydown', (e) => { if (e.key === 'Enter') capture(); });
+  root.append(h('div', { class: 'scenes-layout' }, h('div', { class: 'inner' }, list.el)));
 
-  root.append(h('div', { class: 'scenes-layout' }, h('div', { class: 'inner' },
-    h('div', { class: 'card stack' },
-      h('h2', {}, 'Aktuelles Licht als Szene speichern'),
-      h('div', { class: 'row' }, name,
-        h('label', { class: 'row muted small' }, 'Überblendung', fade, 's'),
-        h('button', { class: 'btn primary', onclick: capture }, 'Speichern')),
-      h('label', { class: 'row muted small' }, othersOff, 'Beim Abrufen Scheinwerfer ausschalten, die nicht in der Szene vorkommen')),
-    h('h2', {}, 'Szenen'),
-    list)));
-
-  function render() {
-    if (!store.scenes.length) {
-      clear(list, h('p', { class: 'muted' }, 'Noch keine Szenen. Stelle im Tab „Bühne“ ein Licht ein und speichere es hier.'));
+  function copyToProduction(sc) {
+    if (!store.productions.length) {
+      emit('toast', { text: 'Es gibt noch keine Produktion. Lege zuerst im Tab „Produktionen“ eine an.', error: true });
       return;
     }
-    clear(list, store.scenes.map((sc, i) => {
-      const lit = Object.values(sc.levels).filter((l) => l.dimmer > 0).length;
-      return h('div', { class: `scene${store.lastScene === sc.id ? ' active' : ''}` },
-        h('div', {},
-          h('div', { class: 'name' }, `${i + 1}. ${sc.name}`),
-          h('div', { class: 'meta' }, `${lit} Scheinwerfer an · Überblendung ${sc.fadeSeconds} s`)),
-        h('button', {
-          class: 'btn primary big',
-          onclick: async () => {
-            await api.post(`/api/scenes/${sc.id}/recall`, { othersOff: othersOff.checked });
-            store.lastScene = sc.id;
-            render();
-          },
-        }, 'Abrufen ▶'),
-        h('div', { class: 'row' },
-          h('button', { class: 'btn small', title: 'Nach oben', disabled: i === 0, onclick: () => move(i, -1) }, '↑'),
-          h('button', { class: 'btn small', title: 'Nach unten', disabled: i === store.scenes.length - 1, onclick: () => move(i, 1) }, '↓'),
-          h('button', {
-            class: 'btn small',
-            title: 'Aktuelles Licht in diese Szene übernehmen',
-            onclick: async () => {
-              if (!confirm(`Szene „${sc.name}“ mit dem aktuellen Licht überschreiben?`)) return;
-              await api.post('/api/scenes/capture', { name: sc.name, fade: sc.fadeSeconds, sceneId: sc.id });
-              emit('toast', { text: 'Überschrieben.' });
-            },
-          }, 'Überschreiben'),
-          h('button', {
-            class: 'btn small',
-            onclick: async () => {
-              const n = prompt('Neuer Name', sc.name);
-              const f = n === null ? null : prompt('Überblendzeit in Sekunden', sc.fadeSeconds);
-              if (n !== null) await api.put(`/api/scenes/${sc.id}`, { name: n, fadeSeconds: f === null ? null : Number(f) });
-            },
-          }, 'Bearbeiten'),
-          h('button', {
-            class: 'btn small danger',
-            onclick: async () => { if (confirm(`Szene „${sc.name}“ löschen?`)) await api.del(`/api/scenes/${sc.id}`); },
-          }, 'Löschen')));
-    }));
+    const target = h('select', {},
+      store.productions.map((p) => h('option', { value: p.id, selected: p.id === store.activeProductionId }, p.name)));
+    dialog(`Szene „${sc.name}“ in Produktion kopieren`,
+      h('label', { class: 'field' }, 'Ziel-Produktion', target),
+      [{
+        label: 'Kopieren',
+        class: 'primary',
+        onclick: async () => {
+          await api.post(`/api/productions/${target.value}/scenes/copy-from-library`, { sceneIds: [sc.id] });
+          const p = store.productions.find((x) => x.id === target.value);
+          emit('toast', { text: `„${sc.name}“ nach „${p?.name ?? target.value}“ kopiert.` });
+        },
+      }]);
   }
 
-  async function move(i, d) {
-    const ids = store.scenes.map((s) => s.id);
-    [ids[i], ids[i + d]] = [ids[i + d], ids[i]];
-    await api.post('/api/scenes/reorder', { ids });
-  }
-
-  on('scenes', render);
+  on('scenes', list.render);
   return {
     key(e) {
       const n = Number(e.key);
-      if (n >= 1 && n <= 9 && store.scenes[n - 1]) api.post(`/api/scenes/${store.scenes[n - 1].id}/recall`, { othersOff: othersOff.checked });
+      if (n >= 1 && n <= 9) list.recallNumber(n);
     },
   };
 }
