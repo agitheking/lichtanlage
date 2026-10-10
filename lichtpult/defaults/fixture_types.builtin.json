@@ -1,0 +1,439 @@
+{
+  "types": [
+    {
+      "id": "generic-dimmer-1ch",
+      "name": "Dimmer (1 Kanal, z. B. Halogen am Dimmerpack)",
+      "mode": "1ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "fresnel",
+        "angleDeg": 30
+      },
+      "render": {
+        "shape": "round",
+        "color": "#5a4a32"
+      },
+      "colorModel": "none"
+    },
+    {
+      "id": "generic-rgb-3ch",
+      "name": "RGB (3 Kanäle)",
+      "mode": "3ch",
+      "channels": [
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "par",
+        "angleDeg": 25
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgb"
+    },
+    {
+      "id": "generic-rgbw-4ch",
+      "name": "RGBW (4 Kanäle)",
+      "mode": "4ch",
+      "channels": [
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Weiß",
+          "role": "white",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "par",
+        "angleDeg": 25
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgbw"
+    },
+    {
+      "id": "generic-dim-rgb-4ch",
+      "name": "Dimmer + RGB (4 Kanäle)",
+      "mode": "4ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "par",
+        "angleDeg": 25
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgb"
+    },
+    {
+      "id": "generic-dim-rgbw-5ch",
+      "name": "Dimmer + RGBW (5 Kanäle)",
+      "mode": "5ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Weiß",
+          "role": "white",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "par",
+        "angleDeg": 30
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgbw"
+    },
+    {
+      "id": "generic-dim-rgbw-strobe-6ch",
+      "name": "Dimmer + RGBW + Strobe (6 Kanäle)",
+      "mode": "6ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Weiß",
+          "role": "white",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Strobe",
+          "role": "strobe",
+          "default": 0,
+          "highlight": 0
+        }
+      ],
+      "beam": {
+        "kind": "flood",
+        "angleDeg": 40
+      },
+      "render": {
+        "shape": "square",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgbw"
+    },
+    {
+      "id": "generic-dim-strobe-rgbw-prog-8ch",
+      "name": "Dimmer, Strobe, RGBW, Programm, Speed (8 Kanäle, typisch Cameo)",
+      "manufacturer": "Generic",
+      "mode": "8ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Strobe",
+          "role": "strobe",
+          "default": 0,
+          "highlight": 0
+        },
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Weiß",
+          "role": "white",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Programm",
+          "role": "program",
+          "default": 0,
+          "highlight": 0
+        },
+        {
+          "name": "Geschwindigkeit",
+          "role": "other",
+          "default": 0,
+          "highlight": 0
+        }
+      ],
+      "beam": {
+        "kind": "flood",
+        "angleDeg": 40
+      },
+      "render": {
+        "shape": "square",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgbw"
+    },
+    {
+      "id": "generic-dim-rgbaw-6ch",
+      "name": "Dimmer + RGBAW (6 Kanäle)",
+      "mode": "6ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Amber",
+          "role": "amber",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Weiß",
+          "role": "white",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "par",
+        "angleDeg": 30
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgbaw"
+    },
+    {
+      "id": "generic-cct-2ch",
+      "name": "Weiß mit Farbtemperatur (Dimmer + CCT, 2 Kanäle)",
+      "mode": "2ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Farbtemperatur",
+          "role": "cct",
+          "default": 128,
+          "highlight": 128
+        }
+      ],
+      "beam": {
+        "kind": "fresnel",
+        "angleDeg": 30
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "cct"
+    },
+    {
+      "id": "generic-cct-3ch",
+      "name": "Weiß warm/kalt (Dimmer + Warm + Kalt, 3 Kanäle)",
+      "mode": "3ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Warmweiß",
+          "role": "warm",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Kaltweiß",
+          "role": "cold",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "fresnel",
+        "angleDeg": 30
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "cct"
+    },
+    {
+      "id": "generic-profile-1ch",
+      "name": "Profilscheinwerfer (1 Kanal Dimmer)",
+      "mode": "1ch",
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        }
+      ],
+      "beam": {
+        "kind": "profile",
+        "angleDeg": 22
+      },
+      "render": {
+        "shape": "profile",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "none"
+    }
+  ]
+}
