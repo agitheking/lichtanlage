@@ -1,0 +1,289 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Lichtpult Kellertheater – Architektur",
+    "output": "architektur.html",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "bediener",
+      "type": "external",
+      "label": "Bediener",
+      "sublabel": "Laptop / Tablet",
+      "pos": [
+        30,
+        300
+      ],
+      "size": [
+        120,
+        64
+      ]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Lichtpult-UI",
+      "sublabel": "3D-Bühne · Szenen",
+      "pos": [
+        240,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "tag": "three.js 3D"
+    },
+    {
+      "id": "fenster",
+      "type": "frontend",
+      "label": "Zugfenster",
+      "sublabel": "fenster.html",
+      "pos": [
+        240,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "tag": "2. Monitor"
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "FastAPI",
+      "sublabel": "REST /api · WS /ws",
+      "pos": [
+        480,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "effekte",
+      "type": "backend",
+      "label": "Effekt-Skripte",
+      "sublabel": "effekte/*.py",
+      "pos": [
+        480,
+        490
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "engine",
+      "type": "backend",
+      "label": "Engine",
+      "sublabel": "Patch · Fade",
+      "pos": [
+        700,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "data/*.json",
+      "sublabel": "Rig · Szenen",
+      "pos": [
+        700,
+        490
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "dmx",
+      "type": "backend",
+      "label": "DMX-Ausgabe",
+      "sublabel": "Thread · 40 Hz",
+      "pos": [
+        920,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "sim",
+      "type": "backend",
+      "label": "Simulation",
+      "sublabel": "ohne Interface",
+      "pos": [
+        920,
+        120
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "enttec",
+      "type": "external",
+      "label": "ENTTEC DMX USB Pro",
+      "sublabel": "/dev/ttyUSB0",
+      "pos": [
+        1170,
+        300
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "lampen",
+      "type": "external",
+      "label": "16 Scheinwerfer",
+      "sublabel": "13 Halogen · 3 LED-PAR",
+      "pos": [
+        1170,
+        490
+      ],
+      "size": [
+        160,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Browser",
+      "wraps": [
+        "ui",
+        "fenster"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Python-Prozess (uvicorn)",
+      "wraps": [
+        "api",
+        "engine",
+        "dmx",
+        "sim",
+        "store",
+        "effekte"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "bedienen",
+      "from": "bediener",
+      "to": "ui",
+      "label": "Klick · Fader"
+    },
+    {
+      "id": "ui-api",
+      "from": "ui",
+      "to": "api",
+      "label": "REST + WS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-engine",
+      "from": "api",
+      "to": "engine",
+      "label": "Werte"
+    },
+    {
+      "id": "engine-dmx",
+      "from": "engine",
+      "to": "dmx",
+      "label": "Frame",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dmx-enttec",
+      "from": "dmx",
+      "to": "enttec",
+      "label": "USB · Label 6",
+      "variant": "emphasis"
+    },
+    {
+      "id": "enttec-lampen",
+      "from": "enttec",
+      "to": "lampen",
+      "label": "DMX512",
+      "labelDy": 24
+    },
+    {
+      "id": "fenster-api",
+      "from": "fenster",
+      "to": "api",
+      "label": "Fensterlicht",
+      "fromSide": "right",
+      "toSide": "top"
+    },
+    {
+      "id": "effekte-api",
+      "from": "effekte",
+      "to": "api",
+      "label": "REST"
+    },
+    {
+      "id": "engine-store",
+      "from": "engine",
+      "to": "store",
+      "label": "speichern",
+      "variant": "dashed",
+      "labelDy": 24
+    },
+    {
+      "id": "dmx-sim",
+      "from": "dmx",
+      "to": "sim",
+      "label": "Fallback",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Bedienung",
+      "items": [
+        "3D-Bühne: Scheinwerfer anklicken und dimmen",
+        "14 Szenen mit Überblendung",
+        "Geführte Einrichtung mit Adresssuche"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Kern",
+      "items": [
+        "Engine rechnet Werte in 512 DMX-Kanäle um",
+        "Server ist die einzige Quelle der Wahrheit",
+        "Alle Browser bleiben per WebSocket synchron"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Hardware",
+      "items": [
+        "ENTTEC sendet 40 Bilder pro Sekunde",
+        "Abgezogen → Simulation, Reconnect alle 2 s",
+        "Halogen auf 1-16, LED-PARs auf 49, 61, 73"
+      ]
+    }
+  ]
+}

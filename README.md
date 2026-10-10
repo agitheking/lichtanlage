@@ -80,6 +80,7 @@ ausprobieren und als eigener Gerätetyp speichern.
 | `effekte/` | Effekt-Skripte (Gewitter, Lauflicht, Eisenbahn, Sommer) |
 | `static/fenster.html` | virtuelles Zugfenster, steuert die Fenster-LEDs mit |
 | `scripts/install.sh` | Installation inkl. Autostart |
+| `docs/architektur.html` | interaktives Architekturdiagramm (Quelle: `docs/architektur.json`, erzeugt mit archify) |
 | `docs/PLAN.md` | Architektur- und Umsetzungsplan |
 
 ## Entwicklung
