@@ -114,7 +114,7 @@ export function mountProductionsTab(root) {
   on('productions', render);
   render();
 
-  // Der Ablauf erfährt per show/hide, ob er gerade sichtbar ist (für Tastatur/Show-Modus in T4).
+  // Der Ablauf erfährt per show/hide, ob er gerade sichtbar ist.
   let cuesShown = false;
   function syncCues() {
     const want = visible && sub === 'ablauf';
@@ -132,6 +132,7 @@ export function mountProductionsTab(root) {
     },
     key(e) {
       if (sub === 'szenen') {
+        if (store.show.running) return;  // Kürzel 1–9 im Show-Modus aus
         const n = Number(e.key);
         if (n >= 1 && n <= 9) scenes.recallNumber(n);
       } else cues.key?.(e);

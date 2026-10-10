@@ -49,6 +49,7 @@ export function mountScenesTab(root) {
   on('scenes', list.render);
   return {
     key(e) {
+      if (store.show.running) return;  // Kürzel 1–9 im Show-Modus aus
       const n = Number(e.key);
       if (n >= 1 && n <= 9) list.recallNumber(n);
     },

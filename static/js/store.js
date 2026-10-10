@@ -16,6 +16,7 @@ export const store = {
   scenes: [],
   productions: [],
   activeProductionId: null,
+  show: { running: false, productionId: null, cueIndex: null, atEnd: false },
   raw: { channels: {}, solo: false, identify: [] },
   selection: new Set(),
   lastScene: null,
@@ -56,6 +57,11 @@ function applyProductions(msg) {
   emit('productions');
 }
 
+export function applyShow(show) {
+  store.show = show;
+  emit('show');
+}
+
 export const activeProduction = () => store.productions.find((p) => p.id === store.activeProductionId) ?? null;
 
 function handle(msg) {
@@ -73,6 +79,7 @@ function handle(msg) {
       emit('levels', { all: true });
       emit('scenes');
       applyProductions(msg);
+      if (msg.show) applyShow(msg.show);
       emit('raw');
       emit('status');
       emit('ready');
@@ -88,6 +95,7 @@ function handle(msg) {
     case 'stage': store.stage = msg.stage; emit('stage'); break;
     case 'scenes': store.scenes = msg.scenes; emit('scenes'); break;
     case 'productions': applyProductions(msg); break;
+    case 'show': applyShow(msg.show); break;
     case 'raw': store.raw = msg; emit('raw'); break;
     case 'status': store.status = msg; emit('status'); break;
     case 'dmx_frame': emit('frame', Uint8Array.from(atob(msg.data), (c) => c.charCodeAt(0))); break;
