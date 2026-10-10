@@ -14,6 +14,8 @@ export const store = {
   stage: null,
   levels: { grandMaster: 1, blackout: false, fixtures: {} },
   scenes: [],
+  productions: [],
+  activeProductionId: null,
   raw: { channels: {}, solo: false, identify: [] },
   selection: new Set(),
   lastScene: null,
@@ -48,6 +50,14 @@ function applyTypes(list) {
   emit('types');
 }
 
+function applyProductions(msg) {
+  store.productions = msg.productions ?? [];
+  store.activeProductionId = msg.activeProductionId ?? null;
+  emit('productions');
+}
+
+export const activeProduction = () => store.productions.find((p) => p.id === store.activeProductionId) ?? null;
+
 function handle(msg) {
   switch (msg.type) {
     case 'hello':
@@ -62,6 +72,7 @@ function handle(msg) {
       store.raw = msg.raw;
       emit('levels', { all: true });
       emit('scenes');
+      applyProductions(msg);
       emit('raw');
       emit('status');
       emit('ready');
@@ -76,6 +87,7 @@ function handle(msg) {
     case 'types': applyTypes(msg.types); break;
     case 'stage': store.stage = msg.stage; emit('stage'); break;
     case 'scenes': store.scenes = msg.scenes; emit('scenes'); break;
+    case 'productions': applyProductions(msg); break;
     case 'raw': store.raw = msg; emit('raw'); break;
     case 'status': store.status = msg; emit('status'); break;
     case 'dmx_frame': emit('frame', Uint8Array.from(atob(msg.data), (c) => c.charCodeAt(0))); break;

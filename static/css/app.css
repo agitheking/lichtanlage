@@ -220,6 +220,32 @@ label.check input { margin-top: 3px; width: 18px; height: 18px; }
 .scene .meta { color: var(--muted); font-size: .85em; }
 .scene.active { border-color: var(--accent); }
 
+/* ---------- Tab Produktionen ---------- */
+.prod-layout { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.prod-header {
+  flex: none; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  padding: 10px 20px; background: var(--panel); border-bottom: 1px solid var(--line);
+}
+.prod-header select { min-width: 14em; }
+.prod-body { position: relative; flex: 1; min-height: 0; }
+.prod-body > .card { max-width: 900px; margin: 0 auto; }
+.subtabs { display: flex; gap: 4px; }
+.subtabs a {
+  color: var(--muted); text-decoration: none; padding: 6px 14px; border-radius: 8px; font-weight: 600;
+  border: 1px solid var(--line);
+}
+.subtabs a:hover { color: var(--text); background: var(--panel-2); }
+.subtabs a.active { color: var(--text); background: var(--panel-2); border-color: var(--accent); }
+
+/* ---------- Dialog ---------- */
+dialog.dialog {
+  background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; width: min(480px, 92vw); box-shadow: 0 12px 40px rgba(0, 0, 0, .6);
+}
+dialog.dialog::backdrop { background: rgba(0, 0, 0, .55); }
+dialog.dialog .pick-list { max-height: 50vh; overflow-y: auto; border-top: 1px solid var(--line); padding-top: 4px; }
+dialog.dialog .pick-list label.check { padding: 4px 0; }
+
 /* ---------- Tab Einrichtung ---------- */
 .admin-layout { position: absolute; inset: 0; display: grid; grid-template-columns: 220px 1fr; }
 .admin-nav { background: var(--panel); border-right: 1px solid var(--line); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
