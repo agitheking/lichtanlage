@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "activeProductionId": "beispiel",
+  "productions": [
+    {
+      "id": "beispiel",
+      "name": "Beispiel",
+      "scenes": [
+        {
+          "id": "blackout",
+          "name": "Blackout",
+          "fadeSeconds": 2.0,
+          "levels": {},
+          "createdAt": ""
+        }
+      ],
+      "cues": [
+        {
+          "id": "c0000001",
+          "sceneId": "blackout",
+          "fadeSeconds": 3.0,
+          "note": "Einlass beendet – Saal dunkel",
+          "othersOff": true
+        },
+        {
+          "id": "c0000002",
+          "sceneId": null,
+          "fadeSeconds": null,
+          "note": "Stichwort: Vorhang auf",
+          "othersOff": true
+        }
+      ],
+      "createdAt": ""
+    }
+  ]
+}
