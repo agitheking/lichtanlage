@@ -46,8 +46,8 @@ function fbm(x, oct = 4) { let a = 0, amp = 0.5, fr = 1; for (let i = 0; i < oct
 
 // ------------------------------------------------------------ Fenster-Geometrie
 function win() {
-  // Größe und Lage per URL anpassbar: groesse=0.66 (Anteil der Breite), versatz=0.08 (nach rechts)
-  const size = Number(P.get('groesse') || 0.66), shift = Number(P.get('versatz') || 0.08);
+  // Größe und Lage per URL anpassbar: groesse=0.55 (Anteil der Breite), versatz=0.16 (nach rechts)
+  const size = Number(P.get('groesse') || 0.55), shift = Number(P.get('versatz') || 0.16);
   const w = Math.min(W * size, H * size * 1.6), h = Math.min(H * size * 0.8, w * 0.62);
   return { x: (W - w) / 2 + W * shift, y: H * 0.15, w, h, r: Math.min(w, h) * 0.08 };
 }
