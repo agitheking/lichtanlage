@@ -7,6 +7,24 @@ import { arcT } from '../util/fixture.js';
 import { buildScenery } from './scenery.js';
 import { FixtureLayer } from './fixtures3d.js';
 
+function isShown(obj) {
+  for (let o = obj; o; o = o.parent) if (!o.visible) return false;
+  return true;
+}
+
+function loadPref(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : v === '1';
+  } catch {
+    return fallback;
+  }
+}
+
+function savePref(key, on) {
+  try { localStorage.setItem(key, on ? '1' : '0'); } catch { /* privater Modus */ }
+}
+
 export class StageView {
   constructor() {
     this.el = h('div', { class: 'viewport' });
@@ -22,11 +40,13 @@ export class StageView {
     this.tooltipEl = h('div', { class: 'tooltip3d', hidden: true });
     this.roomLight = h('input', { type: 'range', min: 0, max: 100, value: 35, title: 'Raumlicht (nur Vorschau)' });
     this.labelToggle = h('input', { type: 'checkbox', checked: true });
+    this.roofToggle = h('input', { type: 'checkbox', checked: loadPref('lichtpult.dach', true), title: 'Gewölbe und Deckeneinbauten anzeigen' });
     this.el.append(
       this.labelsEl, this.hintEl, this.tooltipEl,
       h('div', { class: 'overlay' },
         h('label', { class: 'row' }, 'Raumlicht', this.roomLight),
         h('label', { class: 'row' }, this.labelToggle, 'Nummern'),
+        h('label', { class: 'row', title: 'Gewölbe, Lüftungsrohr und Deckeneinbauten ein-/ausblenden' }, this.roofToggle, 'Dach'),
         h('button', { class: 'btn small', onclick: () => this.resetCamera(), title: 'Ansicht zurücksetzen' }, '⟲'),
         h('button', { class: 'btn small', onclick: () => this.frontView(), title: 'Frontansicht' }, 'Front')),
     );
@@ -50,6 +70,10 @@ export class StageView {
     this.scenery = null;
     this.labels = new Map();
     this.labelToggle.addEventListener('change', () => { this.labelsEl.hidden = !this.labelToggle.checked; });
+    this.roofToggle.addEventListener('change', () => {
+      savePref('lichtpult.dach', this.roofToggle.checked);
+      this.applyRoof();
+    });
 
     // Callbacks (vom jeweiligen Tab gesetzt)
     this.onPickFixture = null; // (id, event)
@@ -100,6 +124,11 @@ export class StageView {
     this.stage = stage;
     this.scenery = buildScenery(stage);
     this.scene.add(this.scenery.root);
+    this.applyRoof();
+  }
+
+  applyRoof() {
+    if (this.scenery) this.scenery.ceiling.visible = this.roofToggle.checked;
   }
 
   setFixtures(fixtures, types) {
@@ -178,7 +207,8 @@ export class StageView {
   pick(e) {
     this.ray(e);
     if (this.mode === 'point') {
-      const hit = this.raycaster.intersectObjects(this.scenery.pickables, false)[0];
+      // ausgeblendete Teile (z. B. das Dach) dürfen keine Klicks abfangen
+      const hit = this.raycaster.intersectObjects(this.scenery.pickables, false).find((i) => isShown(i.object));
       if (hit) this.onPickPoint?.(hit.point, hit.object.name);
       return;
     }

@@ -101,6 +101,10 @@ export function buildScenery(stage) {
   const root = new THREE.Group();
   root.name = 'scenery';
   const pickables = [];
+  // Alles an der Decke (Gewölbe, Rohre, Melder, Abhängungen) – lässt sich in der Ansicht ausblenden
+  const ceiling = new THREE.Group();
+  ceiling.name = 'Dach';
+  root.add(ceiling);
   const H = stage.stageHeight;
   const halfW = stage.stageWidth / 2;
   const zBack = -stage.stageDepth;
@@ -147,7 +151,7 @@ export function buildScenery(stage) {
   prof.push([v.halfWidth, 0]);
   const vault = new THREE.Mesh(sweepProfile(prof, zBack - 0.05, Math.max(v.zFront, 9)), plaster);
   vault.name = 'Gewölbe';
-  root.add(vault);
+  ceiling.add(vault);
   pickables.push(vault);
 
   // Rückwand hinter den Flats (Gewölbequerschnitt)
@@ -235,7 +239,7 @@ export function buildScenery(stage) {
     const p = arcCurve.getPoint(t);
     const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 1), rodMat);
     rod.position.set(p.x, la.y + 0.5, p.z);
-    root.add(rod);
+    ceiling.add(rod);
   }
 
   // Lüftungsrohr rechts oben
@@ -243,12 +247,12 @@ export function buildScenery(stage) {
   const d1 = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 5.2, 24), duct);
   d1.rotation.x = Math.PI / 2;
   d1.position.set(3.05, 2.62, -1.4);
-  root.add(d1);
+  ceiling.add(d1);
   const d2 = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 1.6, 24), duct);
   d2.rotation.z = Math.PI / 2;
   d2.rotation.y = -Math.PI / 4;
   d2.position.set(3.5, 2.45, 1.6);
-  root.add(d2);
+  ceiling.add(d2);
 
   // Rauchmelder, Deckenträger
   const red2 = std('#d01818', { roughness: 0.4 });
@@ -256,9 +260,9 @@ export function buildScenery(stage) {
     const s = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), red2);
     s.rotation.x = Math.PI;
     s.position.set(x, y, z);
-    root.add(s);
+    ceiling.add(s);
   }
-  root.add(box(1.3, 0.04, 0.05, std('#c9c4b3'), 0.9, 2.98, 0.5));
+  ceiling.add(box(1.3, 0.04, 0.05, std('#c9c4b3'), 0.9, 2.98, 0.5));
 
   // Ziegel-Tresen links vorne
   root.add(box(0.8, 0.95, 1.5, std('#a8644a', { roughness: 1 }), -4.0, 0, 0.6));
@@ -274,7 +278,7 @@ export function buildScenery(stage) {
     obj.traverse((o) => { if (o.isMesh) { o.name = obj.name; pickables.push(o); } });
   }
 
-  return { root, pickables, arcMesh: arc };
+  return { root, pickables, arcMesh: arc, ceiling };
 }
 
 function buildProp(p) {
