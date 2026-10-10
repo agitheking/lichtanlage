@@ -434,6 +434,72 @@
         "color": "#1c1c1c"
       },
       "colorModel": "none"
+    },
+    {
+      "id": "par-rgbwa-uv-8ch",
+      "name": "LED-PAR RGBWA+UV (8 Kanäle, Cameo rund)",
+      "manufacturer": "Cameo",
+      "mode": "8ch",
+      "builtin": true,
+      "channels": [
+        {
+          "name": "Dimmer",
+          "role": "dimmer",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Strobe",
+          "role": "strobe",
+          "default": 0,
+          "highlight": 0
+        },
+        {
+          "name": "Rot",
+          "role": "red",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Grün",
+          "role": "green",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Blau",
+          "role": "blue",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Weiß",
+          "role": "white",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "Amber",
+          "role": "amber",
+          "default": 0,
+          "highlight": 255
+        },
+        {
+          "name": "UV",
+          "role": "uv",
+          "default": 0,
+          "highlight": 0
+        }
+      ],
+      "beam": {
+        "kind": "par",
+        "angleDeg": 25.0
+      },
+      "render": {
+        "shape": "round",
+        "color": "#1c1c1c"
+      },
+      "colorModel": "rgbaw"
     }
   ]
 }

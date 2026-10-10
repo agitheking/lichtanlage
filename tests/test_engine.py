@@ -11,28 +11,39 @@ def test_defaults_loaded_without_conflicts(engine):
 
 
 def test_raw_override_and_solo(engine):
+    a = engine.rig.get("f01").address - 1
     engine.set_levels({"f01": {"dimmer": 1}})
     engine.set_raw({100: 200})
     fr = engine.compute_frame(time.monotonic())
-    assert fr[0] == 255 and fr[99] == 200
+    assert fr[a] == 255 and fr[99] == 200
     engine.set_raw({}, solo=True)
     fr = engine.compute_frame(time.monotonic())
-    assert fr[0] == 0 and fr[99] == 200
+    assert fr[a] == 0 and fr[99] == 200
     engine.clear_raw()
     assert engine.compute_frame(time.monotonic())[99] == 0
 
 
 def test_identify_blinks_with_highlight(engine):
-    engine.set_identify("f03", True)  # 8-Kanal-Typ an Adresse 17
+    fx = engine.rig.get("f02")  # LED-PAR: Dimmer, Strobe, R, G, B, …
+    assert fx.typeId == "par-rgbwa-uv-8ch"
+    a = fx.address - 1
+    engine.set_identify("f02", True)
     on = engine.compute_frame(0.1)
     off = engine.compute_frame(0.3)
-    assert on[16] == 255 and on[17] == 0  # Strobe-Highlight ist 0
-    assert off[16] == 0
+    assert on[a] == 255 and on[a + 1] == 0  # Strobe-Highlight ist 0
+    assert off[a] == 0
 
 
 def test_identify_with_unsaved_address(engine):
     engine.set_identify("f03", True, address=300, type_id="generic-dimmer-1ch")
     assert engine.compute_frame(0.1)[299] == 255
+
+
+def test_default_scenes_reference_existing_fixtures(engine):
+    names = [s.name for s in engine.scenes]
+    assert "Allgemeines Licht" in names and "Arbeitslicht" in names
+    for sc in engine.scenes:
+        assert all(engine.rig.get(fid) for fid in sc.levels), sc.name
 
 
 def test_scene_capture_and_recall(engine):

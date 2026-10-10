@@ -53,3 +53,11 @@ def test_export_import(client):
     data.pop("state.json", None)
     assert client.post("/api/import", json=data).status_code == 200
     assert client.post("/api/import", json={"evil.json": {}}).status_code == 400
+
+
+def test_create_scene_from_levels(client):
+    r = client.post("/api/scenes", json={"name": "Nacht", "fadeSeconds": 4, "levels": {"f02": {"dimmer": 0.3, "b": 1}, "gibts-nicht": {"dimmer": 1}}})
+    assert r.status_code == 200
+    sc = r.json()
+    assert sc["id"] == "nacht" and list(sc["levels"]) == ["f02"]
+    assert client.get("/api/state").json()["fixtures"].get("f02", {}).get("dimmer", 0) == 0  # Licht unverändert

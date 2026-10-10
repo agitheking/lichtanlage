@@ -51,7 +51,7 @@ class Engine:
             t.builtin = False
         self.rig = store.load(RIG_FILE, Rig, "rig.default.json")
         self.stage = store.load(STAGE_FILE, StageGeometry, "stage.default.json")
-        self.scenes = store.load(SCENES_FILE, SceneList).scenes
+        self.scenes = store.load(SCENES_FILE, SceneList, "scenes.default.json").scenes
         self.state = store.load(STATE_FILE, StageState)
         self.fade = FadeEngine()
         self.raw: dict[int, int] = {}
@@ -304,6 +304,20 @@ class Engine:
                 sc = Scene(id=sid, name=name, fadeSeconds=fade_s, levels=levels,
                            createdAt=datetime.now().isoformat(timespec="seconds"))
                 self.scenes.append(sc)
+            self._save_scenes()
+            return sc
+
+    def create_scene(self, name: str, fade_s: float, levels: dict[str, FixtureLevels]) -> Scene:
+        """Szene direkt aus Werten anlegen (ohne das Licht im Saal umzuschalten)."""
+        with self.lock:
+            base = slugify(name)
+            sid, n = base, 2
+            while any(s.id == sid for s in self.scenes):
+                sid, n = f"{base}-{n}", n + 1
+            sc = Scene(id=sid, name=name, fadeSeconds=fade_s,
+                       levels={fid: lv for fid, lv in levels.items() if self.rig.get(fid)},
+                       createdAt=datetime.now().isoformat(timespec="seconds"))
+            self.scenes.append(sc)
             self._save_scenes()
             return sc
 

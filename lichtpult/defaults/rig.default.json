@@ -3,375 +3,375 @@
   "fixtures": [
     {
       "id": "f01",
-      "name": "Ganz links (rund)",
-      "typeId": "generic-dim-rgbw-5ch",
-      "address": 1,
+      "name": "Links 1 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 16,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.02
-      },
-      "target": [
-        -2.8,
-        0.4,
-        -2.0
-      ],
-      "beamAngleDeg": null,
-      "shape": "round",
-      "groups": [
-        "links"
-      ],
-      "notes": "vom Foto geschätzt"
-    },
-    {
-      "id": "f02",
-      "name": "Links 2 (rund)",
-      "typeId": "generic-dim-rgbw-5ch",
-      "address": 9,
-      "enabled": true,
-      "verified": false,
-      "mount": {
-        "kind": "arc",
-        "t": 0.07
-      },
-      "target": [
-        -2.2,
-        0.4,
-        -2.5
-      ],
-      "beamAngleDeg": null,
-      "shape": "round",
-      "groups": [
-        "links"
-      ],
-      "notes": "vom Foto geschätzt"
-    },
-    {
-      "id": "f03",
-      "name": "Links 3 (eckig)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 17,
-      "enabled": true,
-      "verified": false,
-      "mount": {
-        "kind": "arc",
-        "t": 0.12
-      },
-      "target": [
-        -1.8,
-        0.4,
-        -3.0
-      ],
-      "beamAngleDeg": null,
-      "shape": "square",
-      "groups": [
-        "links"
-      ],
-      "notes": "vom Foto geschätzt"
-    },
-    {
-      "id": "f04",
-      "name": "Links 4 (eckig)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 25,
-      "enabled": true,
-      "verified": false,
-      "mount": {
-        "kind": "arc",
-        "t": 0.17
+        "t": 0.025
       },
       "target": [
         -1.2,
         0.4,
-        -2.0
+        -3.2
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 40.0,
       "shape": "square",
       "groups": [
         "links"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
+    },
+    {
+      "id": "f02",
+      "name": "Links 2 (LED rund)",
+      "typeId": "par-rgbwa-uv-8ch",
+      "address": 73,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "arc",
+        "t": 0.092
+      },
+      "target": [
+        -1.2,
+        0.4,
+        -2.2
+      ],
+      "beamAngleDeg": 40.0,
+      "shape": "round",
+      "groups": [
+        "links"
+      ],
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
+    },
+    {
+      "id": "f03",
+      "name": "Links 3 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 13,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "arc",
+        "t": 0.138
+      },
+      "target": [
+        -0.3,
+        0.4,
+        -2.2
+      ],
+      "beamAngleDeg": 35.0,
+      "shape": "square",
+      "groups": [
+        "links"
+      ],
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
+    },
+    {
+      "id": "f04",
+      "name": "Links 4 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 12,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "arc",
+        "t": 0.204
+      },
+      "target": [
+        0.4,
+        0.4,
+        -3.6
+      ],
+      "beamAngleDeg": 35.0,
+      "shape": "square",
+      "groups": [
+        "links"
+      ],
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
     },
     {
       "id": "f05",
-      "name": "Mitte links (Cameo)",
-      "typeId": "generic-dim-rgbw-5ch",
-      "address": 33,
+      "name": "Mitte links (LED rund)",
+      "typeId": "par-rgbwa-uv-8ch",
+      "address": 61,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.3
+        "t": 0.338
       },
       "target": [
-        -1.0,
+        0.2,
         0.4,
-        -2.5
+        -2.6
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 50.0,
       "shape": "round",
       "groups": [
         "mitte"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
     },
     {
       "id": "f06",
-      "name": "Mitte 2 (PAR)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 41,
+      "name": "Mitte 2 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 9,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.37
+        "t": 0.412
       },
       "target": [
-        -0.5,
+        -1.4,
         0.4,
-        -3.5
+        -3.3
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 30.0,
       "shape": "square",
       "groups": [
         "mitte"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
     },
     {
       "id": "f07",
-      "name": "Mitte (eckig)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 49,
+      "name": "Mitte 3 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 8,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.47
+        "t": 0.505
+      },
+      "target": [
+        -0.6,
+        0.4,
+        -3.4
+      ],
+      "beamAngleDeg": 30.0,
+      "shape": "square",
+      "groups": [
+        "mitte"
+      ],
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
+    },
+    {
+      "id": "f08",
+      "name": "Mitte 4 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 7,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "arc",
+        "t": 0.596
       },
       "target": [
         0.0,
         0.4,
-        -2.5
+        -3.0
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 30.0,
       "shape": "square",
       "groups": [
         "mitte"
       ],
-      "notes": "vom Foto geschätzt"
-    },
-    {
-      "id": "f08",
-      "name": "Mitte 4 (eckig)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 57,
-      "enabled": true,
-      "verified": false,
-      "mount": {
-        "kind": "arc",
-        "t": 0.56
-      },
-      "target": [
-        0.5,
-        0.4,
-        -2.0
-      ],
-      "beamAngleDeg": null,
-      "shape": "square",
-      "groups": [
-        "mitte"
-      ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
     },
     {
       "id": "f09",
-      "name": "Mitte rechts (Tür)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 65,
+      "name": "Mitte rechts (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 6,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.63
+        "t": 0.669
       },
       "target": [
-        0.3,
+        1.2,
         0.4,
-        -3.8
+        -3.2
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 30.0,
       "shape": "square",
       "groups": [
         "mitte"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: Tür / schräge Wand rechts"
     },
     {
       "id": "f10",
-      "name": "Rechts 1 (Cameo)",
-      "typeId": "generic-dim-rgbw-5ch",
-      "address": 73,
+      "name": "Rechts 1 (LED rund)",
+      "typeId": "par-rgbwa-uv-8ch",
+      "address": 49,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.7
+        "t": 0.74
       },
       "target": [
         1.0,
         0.4,
-        -2.5
+        -2.6
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 45.0,
       "shape": "round",
       "groups": [
         "rechts"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: rechte Bühnenhälfte"
     },
     {
       "id": "f11",
-      "name": "Rechts 2 (eckig)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 81,
+      "name": "Rechts 2 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 4,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.75
+        "t": 0.785
       },
       "target": [
-        1.5,
+        -0.6,
         0.4,
-        -1.5
+        -0.8
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 35.0,
+      "shape": "profile",
+      "groups": [
+        "rechts"
+      ],
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: vorne links (Frontlicht)"
+    },
+    {
+      "id": "f12",
+      "name": "Rechts 3 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 3,
+      "enabled": true,
+      "verified": true,
+      "mount": {
+        "kind": "arc",
+        "t": 0.857
+      },
+      "target": [
+        0.6,
+        0.4,
+        -3.0
+      ],
+      "beamAngleDeg": 30.0,
       "shape": "square",
       "groups": [
         "rechts"
       ],
-      "notes": "vom Foto geschätzt"
-    },
-    {
-      "id": "f12",
-      "name": "Rechts 3 (rund)",
-      "typeId": "generic-dim-rgbw-5ch",
-      "address": 89,
-      "enabled": true,
-      "verified": false,
-      "mount": {
-        "kind": "arc",
-        "t": 0.81
-      },
-      "target": [
-        2.0,
-        0.4,
-        -2.5
-      ],
-      "beamAngleDeg": null,
-      "shape": "round",
-      "groups": [
-        "rechts"
-      ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: Sofa / Rückwand Mitte"
     },
     {
       "id": "f13",
       "name": "Rechts 4 (Halogen)",
       "typeId": "generic-dimmer-1ch",
-      "address": 97,
+      "address": 2,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.86
+        "t": 0.92
       },
       "target": [
-        1.8,
+        1.4,
         0.4,
-        -3.0
+        -1.6
       ],
-      "beamAngleDeg": null,
-      "shape": "round",
+      "beamAngleDeg": 30.0,
+      "shape": "square",
       "groups": [
         "rechts"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: vorne rechts"
     },
     {
       "id": "f14",
-      "name": "Rechts 5 (eckig)",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 105,
+      "name": "Rechts 5 (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 1,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.9
+        "t": 0.969
       },
       "target": [
-        2.5,
+        2.4,
         0.4,
-        -2.0
+        -1.4
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 30.0,
       "shape": "square",
       "groups": [
         "rechts"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: Vorhang rechts"
     },
     {
       "id": "f15",
-      "name": "Ganz rechts",
-      "typeId": "generic-dim-strobe-rgbw-prog-8ch",
-      "address": 113,
+      "name": "Ganz rechts (Halogen)",
+      "typeId": "generic-dimmer-1ch",
+      "address": 5,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "arc",
-        "t": 0.96
+        "t": 1.0
       },
       "target": [
-        2.8,
+        -0.8,
         0.4,
-        -2.5
+        -0.5
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 35.0,
       "shape": "square",
       "groups": [
         "rechts"
       ],
-      "notes": "vom Foto geschätzt"
+      "notes": "Adresse per Kamera ermittelt, Position vom Foto; Ziel geschätzt: vorne Mitte links (Frontlicht)"
     },
     {
       "id": "f16",
       "name": "Profiler Decke",
       "typeId": "generic-profile-1ch",
-      "address": 121,
+      "address": 19,
       "enabled": true,
-      "verified": false,
+      "verified": true,
       "mount": {
         "kind": "free",
         "position": [
-          -0.9,
+          -0.55,
           2.85,
-          0.3
+          0.45
         ]
       },
       "target": [
-        0.0,
-        0.4,
-        -2.6
+        -0.3,
+        1.2,
+        -4.4
       ],
-      "beamAngleDeg": null,
+      "beamAngleDeg": 20.0,
       "shape": "profile",
       "groups": [
         "mitte"
       ],
-      "notes": "über dem Bogen an der Decke"
+      "notes": "Adresse und Kanäle per Kamera ermittelt (2026-10-10)"
     }
   ],
   "groups": [

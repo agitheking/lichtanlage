@@ -9,6 +9,7 @@ from ..core.engine import Conflict, NotFound
 from ..models.fixture_type import FixtureType
 from ..models.rig import Fixture, Rig
 from ..models.stage import StageGeometry
+from ..models.state import FixtureLevels
 from .deps import Services, services
 
 router = APIRouter(prefix="/api")
@@ -233,6 +234,19 @@ async def grandmaster(s: S, value: Annotated[float, Body(embed=True, ge=0, le=1)
 @router.get("/scenes")
 def list_scenes(s: S):
     return s.engine.scenes_payload()
+
+
+class SceneCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    fadeSeconds: float = Field(2.0, ge=0, le=120)
+    levels: dict[str, FixtureLevels]
+
+
+@router.post("/scenes")
+async def create_scene(body: SceneCreate, s: S):
+    sc = s.engine.create_scene(body.name, body.fadeSeconds, body.levels)
+    await s.push("scenes")
+    return sc.model_dump()
 
 
 class CaptureBody(BaseModel):

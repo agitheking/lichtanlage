@@ -54,7 +54,7 @@ ausprobieren und als eigener Gerätetyp speichern.
 | `lichtpult/core/patch.py` | Werte (Dimmer, RGBW, CCT …) → 512-Byte-Frame je Gerätetyp, Adresskonflikte |
 | `lichtpult/core/fade.py` | Überblendung auf Kanalebene |
 | `lichtpult/api/` | REST (`/api/...`) und WebSocket (`/ws`) |
-| `lichtpult/defaults/` | Gerätebibliothek, Bühnenmaße und Rig (16 Scheinwerfer, vom Foto geschätzt) |
+| `lichtpult/defaults/` | Gerätebibliothek, Bühnenmaße, Rig (16 Scheinwerfer, Adressen per Kamera vermessen) und Standard-Stimmungen |
 | `static/js/scene/` | three.js: Kulisse, Scheinwerfer mit Spotlights und Lichtkegeln, Picking |
 | `static/js/ui/` | Tabs, Wizard, Kanal-Erkunder |
 | `data/` | Laufzeitdaten (nicht im Git): `rig.json`, `stage.json`, `scenes.json`, … |
